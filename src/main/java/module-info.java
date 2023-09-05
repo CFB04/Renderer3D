@@ -1,4 +1,4 @@
-module cfbastian.renderer2d {
+module cfbastian.renderer3d {
     requires javafx.controls;
     requires javafx.fxml;
 
