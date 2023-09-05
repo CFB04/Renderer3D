@@ -13,6 +13,11 @@ public class HorizontalPlane extends Entity {
     }
 
     @Override
+    public double getDistance(float[] cameraPos) {
+        return cameraPos[1] - pos.y;
+    }
+
+    @Override
     public Vector3 getNormal(Vector3 pos) {
         return new Vector3(0D, 1D, 0D);
     }

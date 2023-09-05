@@ -14,6 +14,8 @@ public abstract class Entity {
 
     public abstract double getDistance(Vector3 cameraPos);
 
+    public abstract double getDistance(float[] cameraPos);
+
     public abstract Vector3 getNormal(Vector3 pos);
 
     public Vector3 getPos() {

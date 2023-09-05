@@ -17,6 +17,12 @@ public class Sphere extends Entity {
     }
 
     @Override
+    public double getDistance(float[] cameraPos) {
+        float x = (float) (cameraPos[0] - pos.x), y = (float) (cameraPos[1] - pos.y), z = (float) (cameraPos[2] - pos.z);
+        return Math.sqrt(x*x + y*y + z*z) - r;
+    }
+
+    @Override
     public Vector3 getNormal(Vector3 pos) {
         return VectorMath.normalize(VectorMath.subtract(pos, this.pos));
     }

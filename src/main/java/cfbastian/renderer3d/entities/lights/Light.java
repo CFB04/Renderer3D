@@ -18,6 +18,12 @@ public abstract class Light extends Entity {
     }
 
     @Override
+    public double getDistance(float[] cameraPos) {
+        float x = (float) (cameraPos[0] - pos.x), y = (float) (cameraPos[1] - pos.y), z = (float) (cameraPos[2] - pos.z);
+        return Math.sqrt(x*x + y*y + z*z);
+    }
+
+    @Override
     public abstract Vector3 getNormal(Vector3 pos);
 
     public abstract double getLight(Vector3 pos, Vector3 normal);

@@ -1,5 +1,6 @@
 package cfbastian.renderer3d;
 
+import cfbastian.renderer3d.compute.ComputeRenderer;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.image.*;
@@ -16,7 +17,7 @@ public class MainController {
     WritablePixelFormat<java.nio.IntBuffer> pixelFormat;
 
     RenderLoop renderLoop = new RenderLoop();
-    Renderer renderer = new Renderer();
+    ComputeRenderer renderer = new ComputeRenderer();
 
     int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
 
@@ -33,7 +34,7 @@ public class MainController {
         pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
         imageView.setImage(image);
 
-        renderer.initScene();
+        renderer.init();
 
         startTime = System.nanoTime();
         renderLoop.start();
@@ -41,17 +42,28 @@ public class MainController {
 
     private class RenderLoop extends AnimationTimer {
 
+        double timer = 0D;
+        int frames = 0;
+
         @Override
         public void handle(long now) {
-
             double elapsedTime = (now - startTime)/1000000000D;
 
-            renderer.updateScene(elapsedTime);
+            renderer.update(elapsedTime);
 
             pixels = renderer.render(elapsedTime);
 
             pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
             imageView.setImage(image);
+
+            frames++;
+
+            while(elapsedTime - timer > 1D)
+            {
+                System.out.println(frames);
+                timer++;
+                frames = 0;
+            }
         }
     }
 
