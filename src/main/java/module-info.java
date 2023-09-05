@@ -3,6 +3,7 @@ module cfbastian.renderer3d {
     requires javafx.fxml;
 
     requires org.kordamp.ikonli.javafx;
+    requires aparapi;
 
     opens cfbastian.renderer3d to javafx.fxml;
     exports cfbastian.renderer3d;
