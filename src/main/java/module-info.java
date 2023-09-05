@@ -5,6 +5,6 @@ module cfbastian.renderer2d {
     requires org.kordamp.ikonli.javafx;
     requires com.almasb.fxgl.all;
 
-    opens cfbastian.renderer2d to javafx.fxml;
-    exports cfbastian.renderer2d;
+    opens cfbastian.renderer3d to javafx.fxml;
+    exports cfbastian.renderer3d;
 }

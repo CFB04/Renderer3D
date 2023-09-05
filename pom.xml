@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cfbastian</groupId>
-    <artifactId>Renderer2D</artifactId>
+    <artifactId>Renderer3D</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Renderer2D</name>
+    <name>Renderer3D</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -81,7 +81,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>cfbastian.renderer2d/cfbastian.renderer2d.HelloApplication</mainClass>
+                            <mainClass>cfbastian.renderer3d/cfbastian.renderer3d.HelloApplication</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

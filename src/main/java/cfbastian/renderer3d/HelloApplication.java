@@ -1,4 +1,4 @@
-package cfbastian.renderer2d;
+package cfbastian.renderer3d;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
