@@ -3,9 +3,7 @@ package cfbastian.renderer2d;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.image.*;
-import javafx.scene.paint.Color;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 public class MainController {
@@ -18,6 +16,7 @@ public class MainController {
     WritablePixelFormat<java.nio.IntBuffer> pixelFormat;
 
     RenderLoop renderLoop = new RenderLoop();
+    Renderer renderer = new Renderer();
 
     int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
 
@@ -26,18 +25,15 @@ public class MainController {
     @FXML
     public void initialize()
     {
-        Arrays.fill(pixels, 0x00000000);
-
-        for (int i = 0; i < Application.WIDTH * Application.HEIGHT; i++)
-        {
-            pixels[i] = 0xFF000000 + i;
-        }
+        Arrays.fill(pixels, 0xFF000000);
 
         image = new WritableImage(Application.WIDTH, Application.HEIGHT);
         pixelWriter = image.getPixelWriter();
         pixelFormat = WritablePixelFormat.getIntArgbInstance();
         pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
         imageView.setImage(image);
+
+        renderer.initScene();
 
         startTime = System.nanoTime();
         renderLoop.start();
@@ -50,13 +46,17 @@ public class MainController {
 
             double elapsedTime = (now - startTime)/1000000000D;
 
-            for (int i = 0; i < Application.WIDTH * Application.HEIGHT; i++)
-            {
-                pixels[i] = 0xFF000000 + (int) (elapsedTime * 255);
-            }
+            renderer.updateScene(elapsedTime);
+
+            pixels = renderer.render(elapsedTime);
 
             pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
             imageView.setImage(image);
         }
+    }
+
+    private static void createMainScene()
+    {
+
     }
 }

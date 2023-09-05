@@ -17,10 +17,6 @@ public class Application extends javafx.application.Application {
         FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), WIDTH, HEIGHT);
 
-        //MainController.init();
-
-        //WritableImage image = new WritableImage(WIDTH, HEIGHT);
-
         scene.setFill(Color.LIGHTGRAY);
 
         stage.setResizable(false);
