@@ -27,6 +27,8 @@ public class MainController {
     {
         Arrays.fill(pixels, 0xFF000000);
 
+
+
         image = new WritableImage(Application.WIDTH, Application.HEIGHT);
         pixelWriter = image.getPixelWriter();
         pixelFormat = WritablePixelFormat.getIntArgbInstance();
@@ -37,9 +39,13 @@ public class MainController {
 
         startTime = System.nanoTime();
         renderLoop.start();
+
     }
 
     private class RenderLoop extends AnimationTimer {
+
+        double timer;
+        int frames;
 
         @Override
         public void handle(long now) {
@@ -52,6 +58,15 @@ public class MainController {
 
             pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
             imageView.setImage(image);
+
+            frames++;
+
+            while(elapsedTime - timer > 1)
+            {
+                System.out.println(frames);
+                timer++;
+                frames = 0;
+            }
         }
     }
 

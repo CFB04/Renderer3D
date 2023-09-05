@@ -9,11 +9,11 @@ import java.io.IOException;
 
 public class Application extends javafx.application.Application {
 
-    public final static int WIDTH = 640, HEIGHT = 480;
+    public final static int WIDTH = 960, HEIGHT = 540;
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("renderer-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), WIDTH, HEIGHT);
 
         scene.setFill(Color.LIGHTGRAY);
