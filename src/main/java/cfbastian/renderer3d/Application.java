@@ -1,8 +1,7 @@
-package cfbastian.renderer2d;
+package cfbastian.renderer3d;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 

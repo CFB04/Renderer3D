@@ -1,6 +1,6 @@
-package cfbastian.renderer2d.entities;
+package cfbastian.renderer3d.entities;
 
-import cfbastian.renderer2d.math.Vector3;
+import cfbastian.renderer3d.math.Vector3;
 
 public class HorizontalPlane extends Entity {
     public HorizontalPlane(Vector3 pos, String key) {

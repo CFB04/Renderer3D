@@ -1,4 +1,4 @@
-package cfbastian.renderer2d.math;
+package cfbastian.renderer3d.math;
 
 public final class VectorMath {
     public static Vector2 add(Vector2 v1, Vector2 v2)

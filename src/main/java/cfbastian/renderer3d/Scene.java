@@ -1,12 +1,9 @@
-package cfbastian.renderer2d;
+package cfbastian.renderer3d;
 
-import cfbastian.renderer2d.entities.Entity;
-import cfbastian.renderer2d.entities.lights.Light;
-import cfbastian.renderer2d.math.Vector3;
+import cfbastian.renderer3d.entities.Entity;
+import cfbastian.renderer3d.entities.lights.Light;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class Scene {
     private ArrayList<Entity> entityList = new ArrayList<>();

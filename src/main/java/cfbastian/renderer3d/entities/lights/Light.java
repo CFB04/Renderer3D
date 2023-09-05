@@ -1,8 +1,8 @@
-package cfbastian.renderer2d.entities.lights;
+package cfbastian.renderer3d.entities.lights;
 
-import cfbastian.renderer2d.entities.Entity;
-import cfbastian.renderer2d.math.Vector3;
-import cfbastian.renderer2d.math.VectorMath;
+import cfbastian.renderer3d.entities.Entity;
+import cfbastian.renderer3d.math.Vector3;
+import cfbastian.renderer3d.math.VectorMath;
 
 public abstract class Light extends Entity {
     double brightness;

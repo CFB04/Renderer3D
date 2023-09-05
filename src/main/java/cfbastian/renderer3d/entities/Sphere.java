@@ -1,7 +1,7 @@
-package cfbastian.renderer2d.entities;
+package cfbastian.renderer3d.entities;
 
-import cfbastian.renderer2d.math.Vector3;
-import cfbastian.renderer2d.math.VectorMath;
+import cfbastian.renderer3d.math.Vector3;
+import cfbastian.renderer3d.math.VectorMath;
 
 public class Sphere extends Entity {
     double r;

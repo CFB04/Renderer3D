@@ -1,4 +1,4 @@
-package cfbastian.renderer2d.math;
+package cfbastian.renderer3d.math;
 
 public class IntVector2 {
     public int x, y;

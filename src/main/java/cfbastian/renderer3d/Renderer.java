@@ -1,14 +1,13 @@
-package cfbastian.renderer2d;
+package cfbastian.renderer3d;
 
-import cfbastian.renderer2d.entities.Entity;
-import cfbastian.renderer2d.entities.HorizontalPlane;
-import cfbastian.renderer2d.entities.Sphere;
-import cfbastian.renderer2d.entities.lights.Light;
-import cfbastian.renderer2d.entities.lights.PointLight;
-import cfbastian.renderer2d.math.*;
+import cfbastian.renderer3d.entities.Entity;
+import cfbastian.renderer3d.entities.HorizontalPlane;
+import cfbastian.renderer3d.entities.Sphere;
+import cfbastian.renderer3d.entities.lights.Light;
+import cfbastian.renderer3d.entities.lights.PointLight;
+import cfbastian.renderer3d.math.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Renderer {
     public static final double MAX_DIST = 100D, MIN_DIST  = 0.01D, NORMAL_DIST = 0.005D;
