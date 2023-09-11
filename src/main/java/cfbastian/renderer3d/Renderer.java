@@ -3,7 +3,6 @@ package cfbastian.renderer3d;
 import cfbastian.renderer3d.bodies.Mesh;
 import cfbastian.renderer3d.bodies.TestSphere;
 import cfbastian.renderer3d.math.ScalarMath;
-import cfbastian.renderer3d.math.Vector3;
 import cfbastian.renderer3d.math.VectorMath;
 import cfbastian.renderer3d.util.ObjFileManager;
 
@@ -29,12 +28,12 @@ public class Renderer {
         mainScene.addSphere(new TestSphere(new double[]{2D, 1D, 0D}, 0.5));
 
         try {
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new double[]{2D, 0, 0}, 1D, 2, "Cube"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new double[]{4D, 0D, 0D}, 1D, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Mesh cube = mainScene.getMesh("Cube");
+        Mesh cube = mainScene.getMesh("Quad");
 //        System.out.println(Arrays.toString(cube.getVertices()));
 //        System.out.println(Arrays.toString(cube.getTextureCoords()));
 //        System.out.println(Arrays.toString(cube.getVertexNormals()));
@@ -58,47 +57,73 @@ public class Renderer {
         this.rays = rays;
         this.cameraPos = cameraPos;
 
-        for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, cameraPos, rays, sphereCoords, sphereRadii, mainScene.spheres.size()); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
+        Mesh quad = mainScene.getMesh("Quad");
+
+//        System.out.println(Arrays.toString(quad.getAbsoluteVertices()));
+
+        for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, cameraPos, rays, quad.getAbsoluteVertices(), quad.getFaceNormals(), quad.getFaces(), quad.getNormals(), mainScene.spheres.size()); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
         return pixels;
     }
 
-    private int getPixel(int i, double[] pos, double[] rays, double[] sphereCoords, double[] sphereRadii, int numSpheres)
+    private int getPixel(int i, double[] pos, double[] rays, double[] vertices, double[] normals, int[] faces, int[] normalIndices, int numSpheres)
     {
+//        if(i%(Application.WIDTH*Application.HEIGHT/20) == 0) System.out.println((double) i /(double) pixels.length);
         double[] ray = Arrays.copyOfRange(rays, i*3, i*3+3);
 
         double[] col = new double[]{0D, 0D, 0D};
 
-        double[] ts = new double[numSpheres];
-        for (int j = 0; j < numSpheres; j++) {
-            double t = hitSphere(Arrays.copyOfRange(sphereCoords, j*3, j*3+3), sphereRadii[j], pos, ray);
-            ts[j] = t > 0 ? t : Double.MAX_VALUE;
+//        double[] ts = new double[numSpheres];
+//        for (int j = 0; j < numSpheres; j++) {
+//            double t = hitSphere(Arrays.copyOfRange(sphereCoords, j*3, j*3+3), sphereRadii[j], pos, ray);
+//            ts[j] = t > 0 ? t : Double.MAX_VALUE;
+//        }
+        double[] ts = new double[faces.length/3];
+//        if(i == 1){
+//        System.out.println(Arrays.toString(vertices));
+//        System.out.println(Arrays.toString(normals));
+//        System.out.println(Arrays.toString(faces));
+//        System.out.println(faces.length/3);
+
+        for (int j = 0; j < faces.length/3; j++) {
+//            System.out.println(Arrays.toString(new double[]{vertices[faces[j * 3]*3], vertices[faces[j * 3]*3 + 1], vertices[faces[j * 3]*3 + 2]}));
+//            System.out.println(Arrays.toString(new double[]{vertices[faces[j * 3+1]*3], vertices[faces[j * 3+1]*3 + 1], vertices[faces[j * 3+1]*3 + 2]}));
+//            System.out.println(Arrays.toString(new double[]{vertices[faces[j * 3+2]*3], vertices[faces[j * 3+2]*3 + 1], vertices[faces[j * 3+2]*3 + 2]}));
+            ts[j] = hitTri(
+                    new double[]{vertices[faces[j*3]*3], vertices[faces[j*3]*3+1], vertices[faces[j*3]*3+2]},
+                    new double[]{vertices[faces[j*3+1]*3], vertices[faces[j*3+1]*3+1], vertices[faces[j*3+1]*3+2]},
+                    new double[]{vertices[faces[j*3+2]*3], vertices[faces[j*3+2]*3+1], vertices[faces[j*3+2]*3+2]},
+                    new double[]{normals[normalIndices[j*3]*3], normals[normalIndices[j*3+1]*3+1], normals[normalIndices[j*3+2]*3+2]}, pos, ray, i);
+            ts[j] = ts[j] > 0 ? ts[j] : Double.MAX_VALUE;
         }
+//        }
         double t = ScalarMath.min(ts);
+//        t = Double.MAX_VALUE;
 
-        double tTemp = hitTri(new double[]{3D, 1D, 0D}, new double[]{3D, -1D, 0D}, new double[]{3D, 0D, 2D}, new double[]{-1D, 0D, 0D}, pos, ray, i);
-
-        if(tTemp > 0D)
-        {
-            col = new double[]{1.0, 0.0, 0.0};
-        }
+//        double tTemp = hitTri(new double[]{3D, 1D, 0D}, new double[]{3D, -1D, 0D}, new double[]{3D, 0D, 2D}, new double[]{-1D, 0D, 0D}, pos, ray, i);
+//
+//        if(tTemp > 0D)
+//        {
+//            col = new double[]{1.0, 0.0, 0.0};
+//        }
 
         if(t > 0D && t != Double.MAX_VALUE)
         {
-            double[] hit = new double[]{pos[0] + ray[0] * t, pos[1] + ray[1] * t, pos[2] + ray[2] * t};
-            double[] N = new double[]{hit[0], hit[1], hit[2] + 1};
-            double Nl = Math.sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
-            N[0] /= Nl; N[1] /= Nl; N[2] /= Nl;
-            col = new double[]{0.5 * (N[0] + 1), 0.5 * (N[1] + 1), 0.5 * (N[2] + 1)};
+//            double[] hit = new double[]{pos[0] + ray[0] * t, pos[1] + ray[1] * t, pos[2] + ray[2] * t};
+//            double[] N = new double[]{hit[0], hit[1], hit[2] + 1};
+//            double Nl = Math.sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
+//            N[0] /= Nl; N[1] /= Nl; N[2] /= Nl;
+//            col = new double[]{0.5 * (N[0] + 1), 0.5 * (N[1] + 1), 0.5 * (N[2] + 1)};
+            col = new double[]{0.0, 0.0, 1.0};
         }
-//        else if(t == Double.MAX_VALUE)
-//        {
-//            // Background
-//            double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
-//            double[] unitDir = new double[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
-//            double a = 0.5 * (unitDir[2] + 1D);
-//
-//            col = new double[]{(1D - a) * 1 + a * 0.5, (1D - a) * 1 + a * 0.7, (1D - a) * 1 + a};
-//        }
+        else if(t == Double.MAX_VALUE)
+        {
+            // Background
+            double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
+            double[] unitDir = new double[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
+            double a = 0.5 * (unitDir[2] + 1D);
+
+            col = new double[]{(1D - a) * 1 + a * 0.5, (1D - a) * 1 + a * 0.7, (1D - a) * 1 + a};
+        }
 
         boundColor(col);
         int[] color = new int[]{(int) (col[0] * 255), (int) (col[1] * 255), (int) (col[2] * 255)};
@@ -116,14 +141,6 @@ public class Renderer {
 
         double t = (D - NdotPos) / NdotR;
 
-        if(i == pixels.length/2)
-        {
-            System.out.println(NdotR);
-            System.out.println(NdotPos);
-            System.out.println(D);
-            System.out.println(t);
-        }
-
         double[] P = new double[]{pos[0] + ray[0] * t, pos[1] + ray[1] * t, pos[2] + ray[2] * t};
         double[] edge = new double[]{v1[0]-v0[0], v1[1]-v0[1], v1[2]-v0[2]};
         double[] vp = new double[]{P[0]-v0[0], P[1]-v0[1], P[2]-v0[2]};
@@ -138,6 +155,7 @@ public class Renderer {
         C = VectorMath.cross(edge, vp);
         if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
 
+        System.out.println(t);
         return t;
     }
 

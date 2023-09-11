@@ -2,6 +2,8 @@ package cfbastian.renderer3d.bodies;
 
 import cfbastian.renderer3d.math.VectorMath;
 
+import java.util.Arrays;
+
 public class Mesh {
     protected double[] pos;
     protected double scale;
@@ -50,16 +52,23 @@ public class Mesh {
 
     public void calculateFaceNormals()
     {
-        for (int i = 0; i < faces.length/3; i++)
+        for (int i = 0; i < normals.length/3; i++)
         {
-            double[] normal = getNormal(new double[]{vertices[faces[i*3]], vertices[faces[i*3]+1], vertices[faces[i*3]+2]}, new double[]{vertices[faces[i*3+1]], vertices[faces[i*3+1]+1], vertices[faces[i*3+1]+2]}, new double[]{vertices[faces[i*3+2]], vertices[faces[i*3+2]+1], vertices[faces[i*3+2]+2]});
-            faceNormals[i] = normal[0];
-            faceNormals[i+1] = normal[1];
-            faceNormals[i+2] = normal[2];
+            double[] normal = getNormal(
+                    new double[]{vertexNormals[normals[i*3]*3], vertexNormals[normals[i*3]*3+1], vertexNormals[normals[i*3]*3+2]},
+                    new double[]{vertexNormals[normals[i*3+1]*3], vertexNormals[normals[i*3+1]*3+1], vertexNormals[normals[i*3+1]*3+2]},
+                    new double[]{vertexNormals[normals[i*3+2]*3], vertexNormals[normals[i*3+2]*3+1], vertexNormals[normals[i*3+2]*3+2]});
+            faceNormals[i*3] = normal[0];
+            faceNormals[i*3+1] = normal[1];
+            faceNormals[i*3+2] = normal[2];
         }
+
+        System.out.println(Arrays.toString(faceNormals));
     }
     public double[] getNormal(double[] v1, double[] v2, double[] v3) {
-        return VectorMath.cross(new double[]{v3[0] - v2[0], v3[1] - v2[1], v3[2] - v2[2]}, new double[]{v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2]});
+//        System.out.println("Uhh: " + Arrays.toString(new double[]{(v1[0] + v2[0] + v3[0]) / 3D, (v1[1] + v2[1] + v3[1]) / 3D, (v1[2] + v2[2] + v3[2]) / 3D}));
+//        System.out.println("Ahh: " + Arrays.toString(VectorMath.cross(new double[]{v3[0] - v2[0], v3[1] - v2[1], v3[2] - v2[2]}, new double[]{v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2]})));
+        return new double[]{(v1[0] + v2[0] + v3[0]) / 3D, (v1[1] + v2[1] + v3[1]) / 3D, (v1[2] + v2[2] + v3[2]) / 3D};
     }
 
     public double getScale() {

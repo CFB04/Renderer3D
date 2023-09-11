@@ -46,6 +46,8 @@ public class MainController {
 
         startTime = System.nanoTime();
         renderLoop.start();
+
+//        pixels = renderer.render(0D, cameraController.getCameraRays(), cameraController.getCameraPos());
     }
 
 

@@ -87,7 +87,7 @@ public class Camera {
         calculateRays();
     }
 
-    public void calculateRays()
+    public void calculateRays() //TODO partial precomputation for efficiency
     {
         int l = MainController.getPixelsLength();
         rays = new double[l*3];
