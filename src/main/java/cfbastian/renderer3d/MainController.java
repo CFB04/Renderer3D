@@ -2,9 +2,14 @@ package cfbastian.renderer3d;
 
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
 import javafx.scene.image.*;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.robot.Robot;
 
+import java.net.URL;
 import java.util.Arrays;
+import java.util.ResourceBundle;
 
 public class MainController {
 
@@ -16,18 +21,19 @@ public class MainController {
     WritablePixelFormat<java.nio.IntBuffer> pixelFormat;
 
     RenderLoop renderLoop = new RenderLoop();
+    Renderer2 renderer2 = new Renderer2();
     Renderer renderer = new Renderer();
 
-    int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
+    static int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
 
     long startTime;
+
+    Robot robot = new Robot();
 
     @FXML
     public void initialize()
     {
         Arrays.fill(pixels, 0xFF000000);
-
-
 
         image = new WritableImage(Application.WIDTH, Application.HEIGHT);
         pixelWriter = image.getPixelWriter();
@@ -36,11 +42,12 @@ public class MainController {
         imageView.setImage(image);
 
         renderer.initScene();
+        renderer2.initScene();
 
         startTime = System.nanoTime();
         renderLoop.start();
-
     }
+
 
     private class RenderLoop extends AnimationTimer {
 
@@ -53,8 +60,10 @@ public class MainController {
             double elapsedTime = (now - startTime)/1000000000D;
 
             renderer.updateScene(elapsedTime);
+//            renderer2.updateScene(elapsedTime);
 
             pixels = renderer.render(elapsedTime);
+//            pixels = renderer2.render(elapsedTime);
 
             pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
             imageView.setImage(image);
@@ -73,5 +82,21 @@ public class MainController {
     private static void createMainScene()
     {
 
+    }
+
+    public static int getPixelsLength() {
+        return pixels.length;
+    }
+
+    double mouseX = 0D, mouseY = 0D;
+    boolean first = true; // TODO fix this hack
+
+    @FXML
+    public void move(MouseEvent mouseEvent)
+    {
+        if(mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED && !first) renderer.ChangeCameraAngle(mouseEvent.getSceneX() - mouseX, mouseEvent.getSceneY() - mouseY);
+        mouseX = mouseEvent.getSceneX();
+        mouseY = mouseEvent.getSceneY();
+        first = false;
     }
 }
