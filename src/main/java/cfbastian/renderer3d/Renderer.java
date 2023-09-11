@@ -25,14 +25,6 @@ public class Renderer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        Mesh cube = mainScene.getMesh("Quad");
-//        System.out.println(Arrays.toString(cube.getVertices()));
-//        System.out.println(Arrays.toString(cube.getTextureCoords()));
-//        System.out.println(Arrays.toString(cube.getVertexNormals()));
-//        System.out.println(Arrays.toString(cube.getFaces()));
-//        System.out.println(Arrays.toString(cube.getUvs()));
-//        System.out.println(Arrays.toString(cube.getNormals()));
     }
 
     public void updateScene(double elapsedTime)
@@ -47,8 +39,6 @@ public class Renderer {
         this.cameraPos = cameraPos;
 
         Mesh quad = mainScene.getMesh("Quad");
-
-//        System.out.println(Arrays.toString(quad.getAbsoluteVertices()));
 
         for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, cameraPos, rays, quad.getAbsoluteVertices(), quad.getFaceNormals(), quad.getFaces(), quad.getNormals()); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
         return pixels;
@@ -113,7 +103,6 @@ public class Renderer {
         C = VectorMath.cross(edge, vp);
         if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
 
-        System.out.println(t);
         return t;
     }
 
