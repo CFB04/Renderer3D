@@ -1,15 +1,27 @@
 package cfbastian.renderer3d.bodies;
 
-public abstract class Mesh {
-    protected double[] pos, vertices, absoluteVertices; // Anchor position, points relative to anchor, absolute position of points
-    protected int[] tris; // (sets of indices)
+public class Mesh {
+    protected double[] pos;
+    protected double[] vertices, absoluteVertices; // Anchor position, points relative to anchor, absolute position of points
+    protected double[] textureCoords;
+    protected double[] vertexNormals;
+    protected int[] faces, uvs, normals;
+    protected final int uvDimensions;
     private final String key;
 
-    // TODO add vertex normals array
-
-    public Mesh(double[] pos, String key) { // TODO add constructor that reads points, tris from file
+    public Mesh(double[] pos, double[] vertices, double[] vertexTextures, double[] vertexNormals, int[] faces, int[] uvs, int[] normals, int uvDimensions, String key) {
         this.pos = pos;
+        this.vertices = vertices;
+        this.textureCoords = vertexTextures;
+        this.vertexNormals = vertexNormals;
+        this.faces = faces;
+        this.uvs = uvs;
+        this.normals = normals;
+        this.uvDimensions = uvDimensions;
         this.key = key;
+
+        absoluteVertices = new double[vertices.length];
+        calculateAbsoluteVertices();
     }
 
     public String getKey() {
@@ -30,16 +42,35 @@ public abstract class Mesh {
         for (int i = 0; i < vertices.length; i++) absoluteVertices[i] = vertices[i] + pos[i % 3];
     }
 
+    public double[] getVertices() {
+        return vertices;
+    }
+
     public double[] getAbsoluteVertices() {
         return absoluteVertices;
     }
 
-    public int[] getTris() {
-        return tris;
+    public double[] getTextureCoords() {
+        return textureCoords;
     }
 
-    public int getNumTris()
-    {
-        return tris.length / 3;
+    public double[] getVertexNormals() {
+        return vertexNormals;
+    }
+
+    public int[] getFaces() {
+        return faces;
+    }
+
+    public int[] getUvs() {
+        return uvs;
+    }
+
+    public int[] getNormals() {
+        return normals;
+    }
+
+    public int getUvDimensions() {
+        return uvDimensions;
     }
 }

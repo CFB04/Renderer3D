@@ -1,9 +1,11 @@
 package cfbastian.renderer3d;
 
+import cfbastian.renderer3d.bodies.Mesh;
 import cfbastian.renderer3d.bodies.TestSphere;
 import cfbastian.renderer3d.math.ScalarMath;
-import cfbastian.renderer3d.math.Vector3;
+import cfbastian.renderer3d.util.ObjFileManager;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 public class Renderer {
@@ -23,6 +25,20 @@ public class Renderer {
 
         mainScene.addSphere(new TestSphere(new double[]{2D, -1D, 0D}, 0.5));
         mainScene.addSphere(new TestSphere(new double[]{2D, 1D, 0D}, 0.5));
+
+        try {
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new double[]{2D, 0, 0}, 2, "Sphere"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+//        Mesh sphere = mainScene.getMesh("Sphere");
+//        System.out.println(Arrays.toString(sphere.getVertices()));
+//        System.out.println(Arrays.toString(sphere.getTextureCoords()));
+//        System.out.println(Arrays.toString(sphere.getVertexNormals()));
+//        System.out.println(Arrays.toString(sphere.getFaces()));
+//        System.out.println(Arrays.toString(sphere.getUvs()));
+//        System.out.println(Arrays.toString(sphere.getNormals()));
 
         mainScene.calculateSphereArrays();
         sphereCoords = mainScene.getSpheresCoords();
