@@ -12,7 +12,7 @@ public final class ObjFileManager {
 
     private static BufferedReader br;
 
-    public static Mesh generateMeshFromFile(File file, double[] pos, int uvDimensions, String key) throws IOException
+    public static Mesh generateMeshFromFile(File file, double[] pos, double scale, int uvDimensions, String key) throws IOException
     {
         InputStream objInputStream = new FileInputStream(file);
         Obj obj = ObjReader.read(objInputStream);
@@ -28,11 +28,11 @@ public final class ObjFileManager {
         int[] faceTextureCoords = ObjData.getFaceTexCoordIndicesArray(obj);
         int[] faceNormals = ObjData.getFaceNormalIndicesArray(obj);
 
-        return new Mesh(pos, vertices, texCoords, normals, faceIndices, faceTextureCoords, faceNormals, uvDimensions, key);
+        return new Mesh(pos, scale, vertices, texCoords, normals, faceIndices, faceTextureCoords, faceNormals, uvDimensions, key);
     }
 
-    public static Mesh generateMeshFromFile(String filepath, double[] pos, int uvDimensions, String key) throws IOException
+    public static Mesh generateMeshFromFile(String filepath, double[] pos, double scale, int uvDimensions, String key) throws IOException
     {
-        return generateMeshFromFile(new File(filepath), pos, uvDimensions, key);
+        return generateMeshFromFile(new File(filepath), pos, scale, uvDimensions, key);
     }
 }

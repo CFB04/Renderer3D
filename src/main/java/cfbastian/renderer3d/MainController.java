@@ -72,7 +72,7 @@ public class MainController {
 
             while(elapsedTime - timer > 1)
             {
-                System.out.println(frames);
+//                System.out.println(frames);
                 timer++;
                 frames = 0;
             }

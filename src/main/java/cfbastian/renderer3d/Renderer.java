@@ -3,6 +3,8 @@ package cfbastian.renderer3d;
 import cfbastian.renderer3d.bodies.Mesh;
 import cfbastian.renderer3d.bodies.TestSphere;
 import cfbastian.renderer3d.math.ScalarMath;
+import cfbastian.renderer3d.math.Vector3;
+import cfbastian.renderer3d.math.VectorMath;
 import cfbastian.renderer3d.util.ObjFileManager;
 
 import java.io.IOException;
@@ -27,18 +29,18 @@ public class Renderer {
         mainScene.addSphere(new TestSphere(new double[]{2D, 1D, 0D}, 0.5));
 
         try {
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new double[]{2D, 0, 0}, 2, "Sphere"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new double[]{2D, 0, 0}, 1D, 2, "Cube"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-//        Mesh sphere = mainScene.getMesh("Sphere");
-//        System.out.println(Arrays.toString(sphere.getVertices()));
-//        System.out.println(Arrays.toString(sphere.getTextureCoords()));
-//        System.out.println(Arrays.toString(sphere.getVertexNormals()));
-//        System.out.println(Arrays.toString(sphere.getFaces()));
-//        System.out.println(Arrays.toString(sphere.getUvs()));
-//        System.out.println(Arrays.toString(sphere.getNormals()));
+        Mesh cube = mainScene.getMesh("Cube");
+//        System.out.println(Arrays.toString(cube.getVertices()));
+//        System.out.println(Arrays.toString(cube.getTextureCoords()));
+//        System.out.println(Arrays.toString(cube.getVertexNormals()));
+//        System.out.println(Arrays.toString(cube.getFaces()));
+//        System.out.println(Arrays.toString(cube.getUvs()));
+//        System.out.println(Arrays.toString(cube.getNormals()));
 
         mainScene.calculateSphereArrays();
         sphereCoords = mainScene.getSpheresCoords();
@@ -68,10 +70,17 @@ public class Renderer {
 
         double[] ts = new double[numSpheres];
         for (int j = 0; j < numSpheres; j++) {
-            double t = hitSphere(Arrays.copyOfRange(sphereCoords, j*3, j*3+3), sphereRadii[j], ray);
+            double t = hitSphere(Arrays.copyOfRange(sphereCoords, j*3, j*3+3), sphereRadii[j], pos, ray);
             ts[j] = t > 0 ? t : Double.MAX_VALUE;
         }
         double t = ScalarMath.min(ts);
+
+        double tTemp = hitTri(new double[]{3D, 1D, 0D}, new double[]{3D, -1D, 0D}, new double[]{3D, 0D, 2D}, new double[]{-1D, 0D, 0D}, pos, ray, i);
+
+        if(tTemp > 0D)
+        {
+            col = new double[]{1.0, 0.0, 0.0};
+        }
 
         if(t > 0D && t != Double.MAX_VALUE)
         {
@@ -81,24 +90,60 @@ public class Renderer {
             N[0] /= Nl; N[1] /= Nl; N[2] /= Nl;
             col = new double[]{0.5 * (N[0] + 1), 0.5 * (N[1] + 1), 0.5 * (N[2] + 1)};
         }
-        else if(t == Double.MAX_VALUE)
-        {
-            // Background
-            double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
-            double[] unitDir = new double[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
-            double a = 0.5 * (unitDir[2] + 1D);
-
-            col = new double[]{(1D - a) * 1 + a * 0.5, (1D - a) * 1 + a * 0.7, (1D - a) * 1 + a};
-        }
+//        else if(t == Double.MAX_VALUE)
+//        {
+//            // Background
+//            double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
+//            double[] unitDir = new double[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
+//            double a = 0.5 * (unitDir[2] + 1D);
+//
+//            col = new double[]{(1D - a) * 1 + a * 0.5, (1D - a) * 1 + a * 0.7, (1D - a) * 1 + a};
+//        }
 
         boundColor(col);
         int[] color = new int[]{(int) (col[0] * 255), (int) (col[1] * 255), (int) (col[2] * 255)};
         return 0xFF000000 + (color[0]<<16) + (color[1]<<8) + color[2];
     }
 
-    public double hitSphere(double[] center, double radius, double[] ray)
+    public double hitTri(double[] v0, double[] v1, double[] v2, double[] N, double[] pos, double[] ray, int i)
     {
-        double[] oc = new double[]{cameraPos[0] - center[0], cameraPos[1] - center[1], cameraPos[2] - center[2]};
+        double NdotR = N[0]*ray[0] + N[1]*ray[1] + N[2]*ray[2];
+        if(Math.abs(NdotR) < Constants.K_EPSILON) return -1D;
+        else if(NdotR > 0) return -1D;
+
+        double NdotPos = (N[0]*pos[0] + N[1]*pos[1] + N[2]*pos[2]);
+        double D = N[0]*v0[0] + N[1]*v0[1] + N[2]*v0[2];
+
+        double t = (D - NdotPos) / NdotR;
+
+        if(i == pixels.length/2)
+        {
+            System.out.println(NdotR);
+            System.out.println(NdotPos);
+            System.out.println(D);
+            System.out.println(t);
+        }
+
+        double[] P = new double[]{pos[0] + ray[0] * t, pos[1] + ray[1] * t, pos[2] + ray[2] * t};
+        double[] edge = new double[]{v1[0]-v0[0], v1[1]-v0[1], v1[2]-v0[2]};
+        double[] vp = new double[]{P[0]-v0[0], P[1]-v0[1], P[2]-v0[2]};
+        double[] C = VectorMath.cross(edge, vp);
+        if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
+        edge = new double[]{v2[0]-v1[0], v2[1]-v1[1], v2[2]-v1[2]};
+        vp = new double[]{P[0]-v1[0], P[1]-v1[1], P[2]-v1[2]};
+        C = VectorMath.cross(edge, vp);
+        if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
+        edge = new double[]{v0[0]-v2[0], v0[1]-v2[1], v0[2]-v2[2]};
+        vp = new double[]{P[0]-v2[0], P[1]-v2[1], P[2]-v2[2]};
+        C = VectorMath.cross(edge, vp);
+        if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
+
+        return t;
+    }
+
+    public double hitSphere(double[] center, double radius, double[] pos, double[] ray)
+    {
+        double[] oc = new double[]{pos[0] - center[0], pos[1] - center[1], pos[2] - center[2]};
         double a = ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2];
         double halfb = (oc[0]*ray[0] + oc[1]*ray[1] + oc[2]*ray[2]);
         double c = oc[0]*oc[0] + oc[1]*oc[1] + oc[2]*oc[2] - radius*radius;
