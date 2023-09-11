@@ -19,6 +19,7 @@ public class Application extends javafx.application.Application {
         scene = new Scene(fxmlLoader.load(), WIDTH, HEIGHT);
 
         scene.setFill(Color.LIGHTGRAY);
+        scene.getRoot().requestFocus();
 
         stage.setResizable(false);
         stage.setTitle("Hello!");

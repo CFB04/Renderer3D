@@ -3,16 +3,13 @@ package cfbastian.renderer3d;
 import cfbastian.renderer3d.math.Vector3;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.image.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.robot.Robot;
 
-import java.net.URL;
 import java.util.Arrays;
-import java.util.ResourceBundle;
 
 public class MainController {
 
@@ -44,7 +41,7 @@ public class MainController {
         pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
         imageView.setImage(image);
 
-        cameraController = new CameraController(new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D), 0.002, 0.02, 0.5);
+        cameraController = new CameraController(new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D), 0.002, 0.02, 0.5, 1.0);
 
         renderer.initScene();
 
@@ -62,6 +59,8 @@ public class MainController {
         public void handle(long now) {
 
             double elapsedTime = (now - startTime)/1000000000D;
+
+            cameraController.updatePosition(elapsedTime);
 
             renderer.updateScene(elapsedTime);
 
@@ -94,7 +93,7 @@ public class MainController {
     boolean first = true; // TODO fix this hack
 
     @FXML
-    public void look(MouseEvent mouseEvent)
+    public void onMouseMoved(MouseEvent mouseEvent)
     {
         if(mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED && !first) cameraController.ChangeCameraAngle(mouseEvent.getSceneX() - mouseX, mouseEvent.getSceneY() - mouseY);
         mouseX = mouseEvent.getSceneX();
@@ -103,14 +102,14 @@ public class MainController {
     }
 
     @FXML
-    public void keyPress(KeyEvent keyEvent)
+    public void onKeyPress(KeyEvent keyEvent)
     {
-
+        cameraController.setKey(keyEvent.getCode(), true);
     }
 
     @FXML
-    public void keyRelease(KeyEvent keyEvent)
+    public void onKeyRelease(KeyEvent keyEvent)
     {
-
+        cameraController.setKey(keyEvent.getCode(), false);
     }
 }
