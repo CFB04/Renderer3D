@@ -21,7 +21,6 @@ public class MainController {
     WritablePixelFormat<java.nio.IntBuffer> pixelFormat;
 
     RenderLoop renderLoop = new RenderLoop();
-    Renderer2 renderer2 = new Renderer2();
     Renderer renderer = new Renderer();
 
     static int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
@@ -42,7 +41,6 @@ public class MainController {
         imageView.setImage(image);
 
         renderer.initScene();
-        renderer2.initScene();
 
         startTime = System.nanoTime();
         renderLoop.start();
@@ -60,10 +58,8 @@ public class MainController {
             double elapsedTime = (now - startTime)/1000000000D;
 
             renderer.updateScene(elapsedTime);
-//            renderer2.updateScene(elapsedTime);
 
             pixels = renderer.render(elapsedTime);
-//            pixels = renderer2.render(elapsedTime);
 
             pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
             imageView.setImage(image);
