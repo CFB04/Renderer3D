@@ -11,11 +11,11 @@ public class Scene {
     ArrayList<Mesh> meshes = new ArrayList<>();
     ArrayList<TestSphere> spheres = new ArrayList<>(); //TODO REMOVE, THIS IS FOR EASE OF TESTING RAY TRACING
 
-    double[] meshesPoints;
-    int[] meshesTris;
+    private double[] meshesPoints;
+    private int[] meshesTris;
 
-    double[] spheresCoords;
-    double[] spheresRadii;
+    private double[] spheresCoords;
+    private double[] spheresRadii;
 
     public void addMesh(Mesh m)
     {

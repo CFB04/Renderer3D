@@ -1,5 +1,6 @@
 package cfbastian.renderer3d;
 
+import cfbastian.renderer3d.bodies.TestSphere;
 import cfbastian.renderer3d.math.ScalarMath;
 import cfbastian.renderer3d.math.Vector3;
 
@@ -8,14 +9,24 @@ import java.util.Arrays;
 public class Renderer {
     private int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
 
-    private Scene mainScene = new Scene();
-    private Camera camera = new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D);
+    private Scene mainScene;
+    private Camera camera;
 
     double[] rays;
 
+    double[] sphereCoords, sphereRadii;
+
     public void initScene()
     {
+        mainScene = new Scene();
+        camera = new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D);
 
+        mainScene.addSphere(new TestSphere(new double[]{2D, -1D, 0D}, 0.5));
+        mainScene.addSphere(new TestSphere(new double[]{2D, 1D, 0D}, 0.5));
+
+        mainScene.calculateSphereArrays();
+        sphereCoords = mainScene.getSpheresCoords();
+        sphereRadii = mainScene.getSpheresRadii();
     }
 
     public void updateScene(double elapsedTime)
@@ -40,21 +51,31 @@ public class Renderer {
         double[] ray = Arrays.copyOfRange(rays, i*3, i*3+3);
         double[] pos = camera.getPos().toArray();
 
-        // Background
-        double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
-        double[] unitDir = new double[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
-        double a = 0.5 * (unitDir[2] + 1D);
+        double[] col = new double[]{0D, 0D, 0D};
 
-        double[] col = new double[]{(1D - a) * 1 + a * 0.5, (1D - a) * 1 + a * 0.7, (1D - a) * 1 + a};
+        double[] ts = new double[mainScene.spheres.size()];
+        for (int j = 0; j < mainScene.spheres.size(); j++) {
+            double t = hitSphere(Arrays.copyOfRange(sphereCoords, j*3, j*3+3), sphereRadii[j], ray);
+            ts[j] = t > 0 ? t : Double.MAX_VALUE;
+        }
+        double t = ScalarMath.min(ts);
 
-        double t = hitSphere(new double[]{1D, 0D, 0D}, 0.5, ray);
-        if(t > 0D)
+        if(t > 0D && t != Double.MAX_VALUE)
         {
             double[] hit = new double[]{pos[0] + ray[0] * t, pos[1] + ray[1] * t, pos[2] + ray[2] * t};
             double[] N = new double[]{hit[0], hit[1], hit[2] + 1};
             double Nl = Math.sqrt(N[0]*N[0] + N[1]*N[1] + N[2]*N[2]);
             N[0] /= Nl; N[1] /= Nl; N[2] /= Nl;
             col = new double[]{0.5 * (N[0] + 1), 0.5 * (N[1] + 1), 0.5 * (N[2] + 1)};
+        }
+        else if(t == Double.MAX_VALUE)
+        {
+            // Background
+            double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
+            double[] unitDir = new double[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
+            double a = 0.5 * (unitDir[2] + 1D);
+
+            col = new double[]{(1D - a) * 1 + a * 0.5, (1D - a) * 1 + a * 0.7, (1D - a) * 1 + a};
         }
 
         boundColor(col);
@@ -73,7 +94,7 @@ public class Renderer {
         else return (-halfb + Math.sqrt(discriminant)) / a;
     }
 
-    private double[] boundColor(double[] color)
+    private void boundColor(double[] color)
     {
         color[0] = Math.min(color[0], 1D);
         color[1] = Math.min(color[1], 1D);
@@ -81,6 +102,5 @@ public class Renderer {
         color[0] = Math.max(color[0], 0D);
         color[1] = Math.max(color[1], 0D);
         color[2] = Math.max(color[2], 0D);
-        return color;
     }
 }
