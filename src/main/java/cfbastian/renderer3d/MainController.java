@@ -1,5 +1,6 @@
 package cfbastian.renderer3d;
 
+import cfbastian.renderer3d.math.Vector3;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -22,6 +23,7 @@ public class MainController {
     PixelWriter pixelWriter;
     WritablePixelFormat<java.nio.IntBuffer> pixelFormat;
 
+    CameraController cameraController;
     RenderLoop renderLoop = new RenderLoop();
     Renderer renderer = new Renderer();
 
@@ -42,6 +44,8 @@ public class MainController {
         pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
         imageView.setImage(image);
 
+        cameraController = new CameraController(new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D), 0.002, 0.02, 0.5);
+
         renderer.initScene();
 
         startTime = System.nanoTime();
@@ -61,7 +65,7 @@ public class MainController {
 
             renderer.updateScene(elapsedTime);
 
-            pixels = renderer.render(elapsedTime);
+            pixels = renderer.render(elapsedTime, cameraController.getCameraRays(), cameraController.getCameraPos());
 
             pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
             imageView.setImage(image);
@@ -92,7 +96,7 @@ public class MainController {
     @FXML
     public void look(MouseEvent mouseEvent)
     {
-        if(mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED && !first) renderer.ChangeCameraAngle(mouseEvent.getSceneX() - mouseX, mouseEvent.getSceneY() - mouseY);
+        if(mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED && !first) cameraController.ChangeCameraAngle(mouseEvent.getSceneX() - mouseX, mouseEvent.getSceneY() - mouseY);
         mouseX = mouseEvent.getSceneX();
         mouseY = mouseEvent.getSceneY();
         first = false;

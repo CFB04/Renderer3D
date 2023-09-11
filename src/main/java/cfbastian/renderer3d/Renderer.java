@@ -10,16 +10,19 @@ public class Renderer {
     private int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
 
     private Scene mainScene;
-    private Camera camera;
+    //private Camera camera;
+
+    double elapsedTime;
 
     double[] rays;
+    double[] cameraPos;
 
     double[] sphereCoords, sphereRadii;
 
     public void initScene()
     {
         mainScene = new Scene();
-        camera = new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D);
+        //camera = new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D);
 
         mainScene.addSphere(new TestSphere(new double[]{2D, -1D, 0D}, 0.5));
         mainScene.addSphere(new TestSphere(new double[]{2D, 1D, 0D}, 0.5));
@@ -34,14 +37,17 @@ public class Renderer {
 
     }
 
-    public void ChangeCameraAngle(double mouseDX, double mouseDY)
-    {
-        camera.setAngle(camera.getTheta() - mouseDX/100D, camera.getPhi() + mouseDY/100D);
-    }
+//    public void ChangeCameraAngle(double mouseDX, double mouseDY)
+//    {
+//        camera.setAngle(camera.getTheta() - mouseDX/100D, camera.getPhi() + mouseDY/100D);
+//    }
 
-    public int[] render(double elapsedTime)
+    public int[] render(double elapsedTime, double[] rays, double[] cameraPos)
     {
-        rays = camera.getRays();
+        this.elapsedTime = elapsedTime;
+        this.rays = rays;
+        this.cameraPos = cameraPos;
+
         for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, elapsedTime, mainScene); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
         return pixels;
     }
@@ -49,7 +55,7 @@ public class Renderer {
     private int getPixel(int i, double elapsedTime, Scene renderScene)
     {
         double[] ray = Arrays.copyOfRange(rays, i*3, i*3+3);
-        double[] pos = camera.getPos().toArray();
+        double[] pos = cameraPos;
 
         double[] col = new double[]{0D, 0D, 0D};
 
@@ -85,7 +91,7 @@ public class Renderer {
 
     public double hitSphere(double[] center, double radius, double[] ray)
     {
-        double[] oc = new double[]{camera.getPos().x - center[0], camera.getPos().y - center[1], camera.getPos().z - center[2]};
+        double[] oc = new double[]{cameraPos[0] - center[0], cameraPos[1] - center[1], cameraPos[2] - center[2]};
         double a = ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2];
         double halfb = (oc[0]*ray[0] + oc[1]*ray[1] + oc[2]*ray[2]);
         double c = oc[0]*oc[0] + oc[1]*oc[1] + oc[2]*oc[2] - radius*radius;
