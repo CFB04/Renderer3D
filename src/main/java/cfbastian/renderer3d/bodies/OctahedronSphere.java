@@ -7,6 +7,6 @@ public class OctahedronSphere extends Mesh{
     public OctahedronSphere(double[] pos, String key) {
         super(pos, key);
 
-        calculateAbsolutePoints();
+        calculateAbsoluteVertices();
     }
 }

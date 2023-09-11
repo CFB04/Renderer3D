@@ -11,7 +11,7 @@ public class Scene {
     ArrayList<Mesh> meshes = new ArrayList<>();
     ArrayList<TestSphere> spheres = new ArrayList<>(); //TODO REMOVE, THIS IS FOR EASE OF TESTING RAY TRACING
 
-    private double[] meshesPoints;
+    private double[] meshesVertices;
     private int[] meshesTris;
 
     private double[] spheresCoords;
@@ -41,11 +41,11 @@ public class Scene {
         ArrayList<Double> meshesPoints = new ArrayList<>();
         ArrayList<Integer> meshesTris = new ArrayList<>();
         for (Mesh m : meshes) {
-            meshesPoints.addAll(Arrays.stream(m.getAbsolutePoints()).boxed().toList());
+            meshesPoints.addAll(Arrays.stream(m.getAbsoluteVertices()).boxed().toList());
             meshesTris.addAll(Arrays.stream(m.getTris()).boxed().toList());
         }
 
-        this.meshesPoints = meshesPoints.stream().mapToDouble(Double::doubleValue).toArray();
+        this.meshesVertices = meshesPoints.stream().mapToDouble(Double::doubleValue).toArray();
         this.meshesTris = meshesTris.stream().mapToInt(Integer::intValue).toArray();
     }
 
@@ -62,8 +62,8 @@ public class Scene {
         this.spheresRadii = spheresRadii.stream().mapToDouble(Double::doubleValue).toArray();
     }
 
-    public double[] getMeshesPoints() {
-        return meshesPoints;
+    public double[] getMeshesVertices() {
+        return meshesVertices;
     }
 
     public int[] getMeshesTris() {

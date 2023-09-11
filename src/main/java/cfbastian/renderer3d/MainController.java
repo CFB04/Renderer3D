@@ -4,6 +4,8 @@ import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.robot.Robot;
 
@@ -88,11 +90,23 @@ public class MainController {
     boolean first = true; // TODO fix this hack
 
     @FXML
-    public void move(MouseEvent mouseEvent)
+    public void look(MouseEvent mouseEvent)
     {
         if(mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED && !first) renderer.ChangeCameraAngle(mouseEvent.getSceneX() - mouseX, mouseEvent.getSceneY() - mouseY);
         mouseX = mouseEvent.getSceneX();
         mouseY = mouseEvent.getSceneY();
         first = false;
+    }
+
+    @FXML
+    public void keyPress(KeyEvent keyEvent)
+    {
+
+    }
+
+    @FXML
+    public void keyRelease(KeyEvent keyEvent)
+    {
+
     }
 }
