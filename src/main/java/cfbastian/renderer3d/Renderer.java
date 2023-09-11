@@ -7,11 +7,9 @@ import cfbastian.renderer3d.math.Vector3;
 import java.util.Arrays;
 
 public class Renderer {
-    private int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
+    private final int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
 
     private Scene mainScene;
-    //private Camera camera;
-
     double elapsedTime;
 
     double[] rays;
@@ -22,7 +20,6 @@ public class Renderer {
     public void initScene()
     {
         mainScene = new Scene();
-        //camera = new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D);
 
         mainScene.addSphere(new TestSphere(new double[]{2D, -1D, 0D}, 0.5));
         mainScene.addSphere(new TestSphere(new double[]{2D, 1D, 0D}, 0.5));
@@ -37,30 +34,24 @@ public class Renderer {
 
     }
 
-//    public void ChangeCameraAngle(double mouseDX, double mouseDY)
-//    {
-//        camera.setAngle(camera.getTheta() - mouseDX/100D, camera.getPhi() + mouseDY/100D);
-//    }
-
     public int[] render(double elapsedTime, double[] rays, double[] cameraPos)
     {
         this.elapsedTime = elapsedTime;
         this.rays = rays;
         this.cameraPos = cameraPos;
 
-        for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, elapsedTime, mainScene); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
+        for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, cameraPos, rays, sphereCoords, sphereRadii, mainScene.spheres.size()); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
         return pixels;
     }
 
-    private int getPixel(int i, double elapsedTime, Scene renderScene)
+    private int getPixel(int i, double[] pos, double[] rays, double[] sphereCoords, double[] sphereRadii, int numSpheres)
     {
         double[] ray = Arrays.copyOfRange(rays, i*3, i*3+3);
-        double[] pos = cameraPos;
 
         double[] col = new double[]{0D, 0D, 0D};
 
-        double[] ts = new double[mainScene.spheres.size()];
-        for (int j = 0; j < mainScene.spheres.size(); j++) {
+        double[] ts = new double[numSpheres];
+        for (int j = 0; j < numSpheres; j++) {
             double t = hitSphere(Arrays.copyOfRange(sphereCoords, j*3, j*3+3), sphereRadii[j], ray);
             ts[j] = t > 0 ? t : Double.MAX_VALUE;
         }
