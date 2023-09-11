@@ -65,9 +65,7 @@ public class Mesh {
 
         System.out.println(Arrays.toString(faceNormals));
     }
-    public double[] getNormal(double[] v1, double[] v2, double[] v3) {
-//        System.out.println("Uhh: " + Arrays.toString(new double[]{(v1[0] + v2[0] + v3[0]) / 3D, (v1[1] + v2[1] + v3[1]) / 3D, (v1[2] + v2[2] + v3[2]) / 3D}));
-//        System.out.println("Ahh: " + Arrays.toString(VectorMath.cross(new double[]{v3[0] - v2[0], v3[1] - v2[1], v3[2] - v2[2]}, new double[]{v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2]})));
+    public double[] getNormal(double[] v1, double[] v2, double[] v3) { // This averages the vertex normals TODO blend using UVs
         return new double[]{(v1[0] + v2[0] + v3[0]) / 3D, (v1[1] + v2[1] + v3[1]) / 3D, (v1[2] + v2[2] + v3[2]) / 3D};
     }
 

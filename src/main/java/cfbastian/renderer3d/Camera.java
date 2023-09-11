@@ -24,7 +24,7 @@ public class Camera {
         this.halfViewportDiagonal = Math.sqrt(viewportWidth*viewportWidth + viewportHeight*viewportHeight)/2D;
 
         this.dir = new Vector3(Math.sin(phi)*Math.cos(theta), Math.sin(phi)*Math.sin(theta), Math.cos(phi));
-        this.focalLength = 1D; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); //TODO change back
+        this.focalLength = 1D; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); TODO implement FOV
         this.viewportCenter = VectorMath.add(pos, VectorMath.scale(dir, focalLength));
         System.out.println("Focal length: " + focalLength);
 
