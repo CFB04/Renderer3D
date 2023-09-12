@@ -63,6 +63,14 @@ public class CameraController {
         return camera.getRays();
     }
 
+    public int[] getCameraKIdxs() {
+        return camera.getkIdxs();
+    }
+
+    public double[] getCameraShearFactors() {
+        return camera.getShearFactors();
+    }
+
     public void setKey(KeyCode keyCode, boolean value) {
         int v = value? 1 : 0;
         switch (keyCode) {

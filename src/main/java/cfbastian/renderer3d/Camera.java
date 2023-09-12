@@ -1,5 +1,6 @@
 package cfbastian.renderer3d;
 
+import cfbastian.renderer3d.math.IntVector3;
 import cfbastian.renderer3d.math.ScalarMath;
 import cfbastian.renderer3d.math.Vector3;
 import cfbastian.renderer3d.math.VectorMath;
@@ -12,6 +13,8 @@ public class Camera {
     private Vector3 viewportCenter, viewportUpperLeft, upperLeftPixel; // Center is not actually rendered when either width or height is odd
     private double theta, phi; // Theta is angle off the positive x-axis, phi is angle off the (vertical) positive z-axis
     private double[] rays;
+    private int[] kIdxs;
+    private double[] shearFactors;
 
     public Camera(Vector3 pos, double theta, double phi, double fov) {
         this.pos = pos;
@@ -35,6 +38,7 @@ public class Camera {
         this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
         this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5), VectorMath.scale(deltaV, 0.5));
         calculateRays();
+        precalculation();
     }
 
     public Vector3 getPos() {
@@ -85,6 +89,7 @@ public class Camera {
         this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
         this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5), VectorMath.scale(deltaV, 0.5));
         calculateRays();
+        precalculation();
     }
 
     public void calculateRays() //TODO partial precomputation for efficiency
@@ -100,8 +105,43 @@ public class Camera {
         }
     }
 
+    public void precalculation()
+    {
+        kIdxs = new int[rays.length];
+        shearFactors = new double[rays.length];
+
+        for (int i = 0; i < rays.length/3; i++) {
+            double[] absray = new double[]{Math.abs(rays[i*3]), Math.abs(rays[i*3+1]), Math.abs(rays[i*3+2])};
+            int kz = absray[0]>absray[1]? 0 : (absray[1]>absray[2]? 1 : 2);
+            int kx = kz + 1 == 3? 0: kz + 1;
+            int ky = kx + 1 == 3? 0: kx + 1;
+
+            if(rays[kz] < 0D)
+            {
+                int a = kx;
+                kx = ky;
+                ky = a;
+            }
+
+            kIdxs[i*3] = kx;
+            kIdxs[i*3+1] = ky;
+            kIdxs[i*3+2] = kz;
+            shearFactors[i*3] = rays[kx]/rays[kz]; //Sx
+            shearFactors[i*3+1] = rays[ky]/rays[kz]; //Sy
+            shearFactors[i*3+2] = 1D/rays[kz]; //Sz
+        }
+    }
+
     public double[] getRays()
     {
         return rays;
+    }
+
+    public int[] getkIdxs() {
+        return kIdxs;
+    }
+
+    public double[] getShearFactors() {
+        return shearFactors;
     }
 }
