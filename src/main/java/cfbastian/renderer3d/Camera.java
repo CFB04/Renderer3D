@@ -118,7 +118,7 @@ public class Camera {
             int kx = kz + 1 == 3? 0: kz + 1;
             int ky = kx + 1 == 3? 0: kx + 1;
 
-            if(rays[kz] < 0D)
+            if(rays[i*3 + kz] < 0D)
             {
                 int a = kx;
                 kx = ky;

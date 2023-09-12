@@ -23,7 +23,7 @@ public class Renderer {
     {
         mainScene = new Scene();
         try {
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new double[]{4D, 0D, 0D}, 1D, 2, "Quad"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new double[]{4D, 0D, 0D}, 1D, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -89,7 +89,7 @@ public class Renderer {
             boolean detSign = det > 0;
             boolean TSign = T > 0;
             boolean sign = Boolean.logicalXor(detSign, TSign);
-            //if(!sign) continue; TODO fix condition
+//            if(!sign) continue; //TODO fix condition
 
             double rcpDet = 1D/det;
             u = U*rcpDet;
@@ -98,7 +98,7 @@ public class Renderer {
             t = T*rcpDet;
         }
 
-        if(t != Double.MAX_VALUE) col = new double[]{0.0, 0.0, 1.0};
+        if(t != Double.MAX_VALUE) col = new double[]{u, v, w};
         else
         {
             // Background
