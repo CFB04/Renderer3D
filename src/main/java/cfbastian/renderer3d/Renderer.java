@@ -64,11 +64,11 @@ public class Renderer {
             B = new double[]{vertices[faces[j*3+1]*3] - pos[0], vertices[faces[j*3+1]*3+1] - pos[1], vertices[faces[j*3+1]*3+2] - pos[2]};
             C = new double[]{vertices[faces[j*3+2]*3] - pos[0], vertices[faces[j*3+2]*3+1] - pos[1], vertices[faces[j*3+2]*3+2] - pos[2]};
             double Ax = A[kx] - Sx * A[kz];
-            double Ay = A[ky] - Sx * A[kz];
+            double Ay = A[ky] - Sy * A[kz];
             double Bx = B[kx] - Sx * B[kz];
-            double By = B[ky] - Sx * B[kz];
+            double By = B[ky] - Sy * B[kz];
             double Cx = C[kx] - Sx * C[kz];
-            double Cy = C[ky] - Sx * C[kz];
+            double Cy = C[ky] - Sy * C[kz];
 
             double U = Cx*By - Cy*Bx;
             double V = Ax*Cy - Ay*Cx;
@@ -88,14 +88,14 @@ public class Renderer {
 
             boolean detSign = det > 0;
             boolean TSign = T > 0;
-            boolean sign = Boolean.logicalXor(detSign, TSign); // false is - true is +
-            if(!sign) continue;
+            boolean sign = Boolean.logicalXor(detSign, TSign);
+            //if(!sign) continue; TODO fix condition
 
             double rcpDet = 1D/det;
-            u = U*det;
-            v = V*det;
-            w = W*det;
-            t = T*det;
+            u = U*rcpDet;
+            v = V*rcpDet;
+            w = W*rcpDet;
+            t = T*rcpDet;
         }
 
         if(t != Double.MAX_VALUE) col = new double[]{0.0, 0.0, 1.0};

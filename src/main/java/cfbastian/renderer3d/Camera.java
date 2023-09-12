@@ -5,6 +5,8 @@ import cfbastian.renderer3d.math.ScalarMath;
 import cfbastian.renderer3d.math.Vector3;
 import cfbastian.renderer3d.math.VectorMath;
 
+import java.util.Arrays;
+
 public class Camera {
     private Vector3 pos, dir;
     private double focalLength, fov, viewportHeight, viewportWidth, halfViewportDiagonal;
@@ -38,7 +40,6 @@ public class Camera {
         this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
         this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5), VectorMath.scale(deltaV, 0.5));
         calculateRays();
-        precalculation();
     }
 
     public Vector3 getPos() {
@@ -89,7 +90,6 @@ public class Camera {
         this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
         this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5), VectorMath.scale(deltaV, 0.5));
         calculateRays();
-        precalculation();
     }
 
     public void calculateRays() //TODO partial precomputation for efficiency
@@ -103,6 +103,8 @@ public class Camera {
             rays[3*i+1] = ray[1];
             rays[3*i+2] = ray[2];
         }
+
+        precalculation();
     }
 
     public void precalculation()
@@ -126,9 +128,9 @@ public class Camera {
             kIdxs[i*3] = kx;
             kIdxs[i*3+1] = ky;
             kIdxs[i*3+2] = kz;
-            shearFactors[i*3] = rays[kx]/rays[kz]; //Sx
-            shearFactors[i*3+1] = rays[ky]/rays[kz]; //Sy
-            shearFactors[i*3+2] = 1D/rays[kz]; //Sz
+            shearFactors[i*3] = rays[i*3 + kx]/rays[i*3 + kz];   //Sx
+            shearFactors[i*3+1] = rays[i*3 + ky]/rays[i*3 + kz]; //Sy
+            shearFactors[i*3+2] = 1D/rays[i*3 + kz];             //Sz
         }
     }
 
