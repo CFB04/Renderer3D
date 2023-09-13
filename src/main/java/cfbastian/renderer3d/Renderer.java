@@ -1,11 +1,10 @@
 package cfbastian.renderer3d;
 
 import cfbastian.renderer3d.bodies.Mesh;
-import cfbastian.renderer3d.math.ScalarMath;
-import cfbastian.renderer3d.math.VectorMath;
 import cfbastian.renderer3d.util.ObjFileManager;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Renderer {
@@ -27,11 +26,6 @@ public class Renderer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public void updateScene(double elapsedTime)
-    {
-
     }
 
     public int[] render(double elapsedTime, double[] rays, int[] kIdxs, double[] shearFactors, double[] cameraPos)
@@ -117,34 +111,6 @@ public class Renderer {
         boundColor(col);
         int[] color = new int[]{(int) (col[0] * 255), (int) (col[1] * 255), (int) (col[2] * 255)};
         return 0xFF000000 + (color[0]<<16) + (color[1]<<8) + color[2];
-    }
-
-    public double hitTri(double[] v0, double[] v1, double[] v2, double[] N, double[] pos, double[] ray, int i)
-    {
-        double NdotR = N[0]*ray[0] + N[1]*ray[1] + N[2]*ray[2];
-        if(Math.abs(NdotR) < Constants.K_EPSILON) return -1D;
-        else if(NdotR > 0) return -1D;
-
-        double NdotPos = (N[0]*pos[0] + N[1]*pos[1] + N[2]*pos[2]);
-        double D = N[0]*v0[0] + N[1]*v0[1] + N[2]*v0[2];
-
-        double t = (D - NdotPos) / NdotR;
-
-        double[] P = new double[]{pos[0] + ray[0] * t, pos[1] + ray[1] * t, pos[2] + ray[2] * t};
-        double[] edge = new double[]{v1[0]-v0[0], v1[1]-v0[1], v1[2]-v0[2]};
-        double[] vp = new double[]{P[0]-v0[0], P[1]-v0[1], P[2]-v0[2]};
-        double[] C = VectorMath.cross(edge, vp);
-        if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
-        edge = new double[]{v2[0]-v1[0], v2[1]-v1[1], v2[2]-v1[2]};
-        vp = new double[]{P[0]-v1[0], P[1]-v1[1], P[2]-v1[2]};
-        C = VectorMath.cross(edge, vp);
-        if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
-        edge = new double[]{v0[0]-v2[0], v0[1]-v2[1], v0[2]-v2[2]};
-        vp = new double[]{P[0]-v2[0], P[1]-v2[1], P[2]-v2[2]};
-        C = VectorMath.cross(edge, vp);
-        if(C[0]*N[0] + C[1]*N[1] + C[2]*N[2] < 0D) return -1D;
-
-        return t;
     }
 
     private void boundColor(double[] color)

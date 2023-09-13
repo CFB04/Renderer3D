@@ -63,8 +63,6 @@ public class MainController {
 
             cameraController.updatePosition(elapsedTime);
 
-            renderer.updateScene(elapsedTime);
-
             pixels = renderer.render(elapsedTime, cameraController.getCameraRays(), cameraController.getCameraKIdxs(), cameraController.getCameraShearFactors(), cameraController.getCameraPos());
 
             pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
