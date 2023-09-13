@@ -33,7 +33,7 @@ public class Camera {
         this.dir = new Vector3(Math.sin(phi)*Math.cos(theta), Math.sin(phi)*Math.sin(theta), Math.cos(phi));
         this.focalLength = 1D; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); TODO implement FOV
         this.viewportCenter = VectorMath.scale(dir, focalLength);
-        System.out.println("Focal length: " + focalLength);
+//        System.out.println("Focal length: " + focalLength);
 
         this.uSpacing = viewportWidth / (double) (Application.WIDTH);
         this.vSpacing = viewportHeight / (double) (Application.HEIGHT);

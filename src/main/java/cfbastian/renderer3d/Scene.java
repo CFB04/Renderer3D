@@ -61,9 +61,6 @@ public class Scene {
             faces.addAll(IntStream.of(facesArr).boxed().toList());
             i += meshes.get(j).getAbsoluteVertices().length/3;
         }
-
-        System.out.println(Arrays.toString(faces.stream().mapToInt(Integer::intValue).toArray()));
-
         return faces.stream().mapToInt(Integer::intValue).toArray();
     }
 
