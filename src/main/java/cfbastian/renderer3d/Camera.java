@@ -18,6 +18,8 @@ public class Camera {
     private int[] kIdxs;
     private double[] shearFactors;
 
+    private int numRays;
+
     public Camera(Vector3 pos, double theta, double phi, double fov) {
         this.pos = pos;
         this.theta = theta;
@@ -30,7 +32,7 @@ public class Camera {
 
         this.dir = new Vector3(Math.sin(phi)*Math.cos(theta), Math.sin(phi)*Math.sin(theta), Math.cos(phi));
         this.focalLength = 1D; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); TODO implement FOV
-        this.viewportCenter = VectorMath.add(pos, VectorMath.scale(dir, focalLength));
+        this.viewportCenter = VectorMath.scale(dir, focalLength);
         System.out.println("Focal length: " + focalLength);
 
         this.uSpacing = viewportWidth / (double) (Application.WIDTH);
@@ -39,6 +41,9 @@ public class Camera {
         this.deltaV = new Vector3(vSpacing*Math.cos(phi)*Math.cos(theta), vSpacing*Math.cos(phi)*Math.sin(theta), -vSpacing*Math.sin(phi));
         this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
         this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5), VectorMath.scale(deltaV, 0.5));
+
+        this.numRays = MainController.getPixelsLength();
+        this.rays = new double[numRays * 3];
         calculateRays();
     }
 
@@ -84,7 +89,7 @@ public class Camera {
         this.theta = theta;// % Math.PI*2;
         this.phi = ScalarMath.bound(phi, 0, Math.PI);
         this.dir = new Vector3(Math.sin(phi)*Math.cos(theta), Math.sin(phi)*Math.sin(theta), Math.cos(phi));
-        this.viewportCenter = VectorMath.add(pos, VectorMath.scale(dir, focalLength));
+        this.viewportCenter = VectorMath.scale(dir, focalLength);
         this.deltaU = new Vector3(uSpacing*Math.sin(theta), -uSpacing*Math.cos(theta), 0D);
         this.deltaV = new Vector3(vSpacing*Math.cos(phi)*Math.cos(theta), vSpacing*Math.cos(phi)*Math.sin(theta), -vSpacing*Math.sin(phi));
         this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
@@ -94,16 +99,33 @@ public class Camera {
 
     public void calculateRays() //TODO partial precomputation for efficiency
     {
-        int l = MainController.getPixelsLength();
-        rays = new double[l*3];
-        for (int i = 0; i < l; i++) {
-            int x = i%Application.WIDTH, y = i/Application.WIDTH;
-            double[] ray = VectorMath.subtract(VectorMath.add(upperLeftPixel, VectorMath.scale(deltaU, x), VectorMath.scale(deltaV, y)), pos).toArray();
-            rays[3*i] = ray[0];
-            rays[3*i+1] = ray[1];
-            rays[3*i+2] = ray[2];
+        double[] us = new double[Application.WIDTH * 3];
+        double[] vs = new double[Application.HEIGHT * 3];
+
+        for (int i = 0; i < Application.WIDTH; i++)
+        {
+            double[] u = VectorMath.scale(deltaU, i).toArray();
+            us[i*3] = u[0];
+            us[i*3+1] = u[1];
+            us[i*3+2] = u[2];
         }
 
+        for (int i = 0; i < Application.HEIGHT; i++)
+        {
+            double[] v = VectorMath.scale(deltaV, i).toArray();
+            vs[i*3] = v[0];
+            vs[i*3+1] = v[1];
+            vs[i*3+2] = v[2];
+        }
+
+        double[] upperLeftPixel = this.upperLeftPixel.toArray();
+
+        for (int i = 0; i < numRays; i++) {
+            int x = i%Application.WIDTH, y = i/Application.WIDTH;
+            rays[3*i] = upperLeftPixel[0] + us[x*3] + vs[y*3];
+            rays[3*i+1] = upperLeftPixel[1] + us[x*3+1] + vs[y*3+1];
+            rays[3*i+2] = upperLeftPixel[2] + us[x*3+2] + vs[y*3+2];
+        }
         precalculation();
     }
 

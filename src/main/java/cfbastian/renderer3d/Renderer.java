@@ -23,7 +23,7 @@ public class Renderer {
     {
         mainScene = new Scene();
         try {
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new double[]{4D, 0D, 0D}, 1D, 2, "Quad"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new double[]{4D, 0D, 0D}, 1D, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
