@@ -1,6 +1,8 @@
 package cfbastian.renderer3d;
 
 import cfbastian.renderer3d.util.ObjFileManager;
+import com.aparapi.Kernel;
+import com.aparapi.Range;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -17,8 +19,13 @@ public class Renderer {
     double[] shearFactors;
     double[] cameraPos;
 
-    public void initScene()
+    RenderKernel renderKernel = new RenderKernel();
+    Range range;
+
+    public void init()
     {
+        range = Range.create(pixels.length);
+
         mainScene = new Scene();
         try {
             mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new double[]{4D, 0D, 0D}, 0.5D, 2, "Quad1"));
@@ -39,7 +46,9 @@ public class Renderer {
         this.shearFactors = shearFactors;
         this.cameraPos = cameraPos;
 
-        for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, cameraPos, rays, kIdxs, shearFactors, vertices, faces); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
+        renderKernel.update(cameraPos, rays, kIdxs, shearFactors, vertices, faces);
+        renderKernel.execute(range);
+
         return pixels;
     }
 
@@ -121,5 +130,31 @@ public class Renderer {
         color[0] = Math.max(color[0], 0D);
         color[1] = Math.max(color[1], 0D);
         color[2] = Math.max(color[2], 0D);
+    }
+
+    private class RenderKernel extends Kernel
+    {
+        @Local double[] cameraPos;
+        @Local double[] rays;
+        @Local int[] kIdxs;
+        @Local double[] shearFactors;
+        @Local double[] vertices;
+        @Local int[] faces;
+
+        public synchronized void update(double[] cameraPos, double[] rays, int[] kIdxs, double[] shearFactors, double[] vertices, int[] faces) {
+            this.cameraPos = cameraPos;
+            this.rays = rays;
+            this.kIdxs = kIdxs;
+            this.shearFactors = shearFactors;
+            this.vertices = vertices;
+            this.faces = faces;
+        }
+
+        @Override
+        public void run()
+        {
+            int index = getGlobalId();
+            pixels[index] = getPixel(index, cameraPos, rays, kIdxs, shearFactors, vertices, faces);
+        }
     }
 }

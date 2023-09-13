@@ -44,7 +44,7 @@ public class MainController {
 
         cameraController = new CameraController(new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D), 0.002, 0.02, 0.5, 1.0);
 
-        renderer.initScene();
+        renderer.init();
 
         startTime = System.nanoTime();
         renderLoop.start();
