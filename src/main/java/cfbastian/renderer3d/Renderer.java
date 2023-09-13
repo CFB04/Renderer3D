@@ -1,13 +1,9 @@
 package cfbastian.renderer3d;
 
-import cfbastian.renderer3d.bodies.Mesh;
 import cfbastian.renderer3d.util.ObjFileManager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
 
 public class Renderer {
     private final int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
@@ -50,7 +46,6 @@ public class Renderer {
     /**
      * Gets the color for the pixel at the given index. Ray-Triangle intersection algorithm from
      * Watertight Ray/Triangle Intersection by Woop et al. TODO fix citation
-     *
      * */
     private int getPixel(int i, double[] pos, double[] rays, int[] kIdxs, double[] shearFactors, double[] vertices, int[] faces)
     {
