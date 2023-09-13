@@ -6,6 +6,8 @@ import cfbastian.renderer3d.util.ObjFileManager;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 public class Renderer {
     private final int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
@@ -13,7 +15,8 @@ public class Renderer {
     private Scene mainScene;
     double elapsedTime;
 
-    double[] rays;
+    double[] rays, vertices;
+    int[] faces;
     int[] kIdxs;
     double[] shearFactors;
     double[] cameraPos;
@@ -22,10 +25,14 @@ public class Renderer {
     {
         mainScene = new Scene();
         try {
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new double[]{4D, 0D, 0D}, 1D, 2, "Quad"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new double[]{4D, 0D, 0D}, 0.5D, 2, "Quad1"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new double[]{4.5, 0D, 0D}, 1D, 2, "Quad2"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        vertices = mainScene.getAllVertices();
+        faces = mainScene.getAllFaces();
     }
 
     public int[] render(double elapsedTime, double[] rays, int[] kIdxs, double[] shearFactors, double[] cameraPos)
@@ -36,9 +43,7 @@ public class Renderer {
         this.shearFactors = shearFactors;
         this.cameraPos = cameraPos;
 
-        Mesh quad = mainScene.getMesh("Quad");
-
-        for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, cameraPos, rays, kIdxs, shearFactors, quad.getAbsoluteVertices(), quad.getFaces()); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
+        for (int i = 0; i < pixels.length; i++) pixels[i] = getPixel(i, cameraPos, rays, kIdxs, shearFactors, vertices, faces); //TODO instead of passing in the whole scene for rendering, optimize by passing in subsets (only visible entities, oct tress)
         return pixels;
     }
 

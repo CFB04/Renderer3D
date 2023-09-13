@@ -4,13 +4,23 @@ package cfbastian.renderer3d;
 import cfbastian.renderer3d.bodies.Mesh;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 public class Scene {
-    ArrayList<Mesh> meshes = new ArrayList<>();
+    private ArrayList<Mesh> meshes = new ArrayList<>();
 
-    public void addMesh(Mesh m)
+    public void addMesh(Mesh mesh)
     {
-        meshes.add(m);
+        for (Mesh m: meshes) {
+            if(mesh.getKey().equals(m.getKey()))
+            {
+                System.err.print("Key taken");
+                return;
+            }
+        }
+        meshes.add(mesh);
     }
 
     public Mesh getMesh(String key)
@@ -30,5 +40,34 @@ public class Scene {
 
         if(index != -1) meshes.remove(index);
         else System.err.println("Mesh with key \"" + key + "\" not found");
+    }
+
+    public double[] getAllVertices()
+    {
+        ArrayList<Double> vertices = new ArrayList<>();
+        for (Mesh m : meshes) vertices.addAll(DoubleStream.of(m.getAbsoluteVertices()).boxed().toList());
+        return vertices.stream().mapToDouble(Double::doubleValue).toArray();
+    }
+
+    public int[] getAllFaces()
+    {
+        ArrayList<Integer> faces = new ArrayList<>();
+
+        int i = 0;
+        for (int j = 0; j < meshes.size(); j++)
+        {
+            int[] facesArr = Arrays.copyOf(meshes.get(j).getFaces(), meshes.get(j).getFaces().length);
+            for (int k = 0; k < facesArr.length; k++) facesArr[k] += i;
+            faces.addAll(IntStream.of(facesArr).boxed().toList());
+            i += meshes.get(j).getAbsoluteVertices().length/3;
+        }
+
+        System.out.println(Arrays.toString(faces.stream().mapToInt(Integer::intValue).toArray()));
+
+        return faces.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    public ArrayList<Mesh> getMeshes() {
+        return meshes;
     }
 }
