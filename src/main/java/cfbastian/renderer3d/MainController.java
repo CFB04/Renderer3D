@@ -34,6 +34,8 @@ public class MainController {
     {
         Arrays.fill(pixels, 0xFF000000);
 
+        imageView.setFitWidth(Application.WIDTH);
+        imageView.setFitHeight(Application.HEIGHT);
         image = new WritableImage(Application.WIDTH, Application.HEIGHT);
         pixelWriter = image.getPixelWriter();
         pixelFormat = WritablePixelFormat.getIntArgbInstance();

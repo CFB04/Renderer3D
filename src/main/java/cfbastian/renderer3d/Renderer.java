@@ -48,6 +48,11 @@ public class Renderer {
         return pixels;
     }
 
+    /**
+     * Gets the color for the pixel at the given index. Ray-Triangle intersection algorithm from
+     * Watertight Ray/Triangle Intersection by Woop et al. TODO fix citation
+     *
+     * */
     private int getPixel(int i, double[] pos, double[] rays, int[] kIdxs, double[] shearFactors, double[] vertices, int[] faces)
     {
         double[] ray = Arrays.copyOfRange(rays, i*3, i*3+3);
@@ -100,40 +105,6 @@ public class Renderer {
 
         if(t != Double.MAX_VALUE) col = new double[]{u, v, w};
         else
-        {
-            // Background
-            double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
-            double[] unitDir = new double[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
-            double a = 0.5 * (unitDir[2] + 1D);
-
-            col = new double[]{(1D - a) * 1 + a * 0.5, (1D - a) * 1 + a * 0.7, (1D - a) * 1 + a};
-        }
-
-        boundColor(col);
-        int[] color = new int[]{(int) (col[0] * 255), (int) (col[1] * 255), (int) (col[2] * 255)};
-        return 0xFF000000 + (color[0]<<16) + (color[1]<<8) + color[2];
-    }
-
-    private int getPixel(int i, double[] pos, double[] rays, double[] vertices, double[] normals, int[] faces, int[] normalIndices)
-    {
-        double[] ray = Arrays.copyOfRange(rays, i*3, i*3+3);
-
-        double[] col = new double[]{0D, 0D, 0D};
-
-        double[] ts = new double[faces.length/3];
-
-        for (int j = 0; j < faces.length/3; j++) {
-            ts[j] = hitTri(
-                    new double[]{vertices[faces[j*3]*3], vertices[faces[j*3]*3+1], vertices[faces[j*3]*3+2]},
-                    new double[]{vertices[faces[j*3+1]*3], vertices[faces[j*3+1]*3+1], vertices[faces[j*3+1]*3+2]},
-                    new double[]{vertices[faces[j*3+2]*3], vertices[faces[j*3+2]*3+1], vertices[faces[j*3+2]*3+2]},
-                    new double[]{normals[normalIndices[j*3]*3], normals[normalIndices[j*3+1]*3+1], normals[normalIndices[j*3+2]*3+2]}, pos, ray, i);
-            ts[j] = ts[j] > 0 ? ts[j] : Double.MAX_VALUE;
-        }
-        double t = ScalarMath.min(ts);
-
-        if(t > 0D && t != Double.MAX_VALUE) col = new double[]{0.0, 0.0, 1.0};
-        else if(t == Double.MAX_VALUE)
         {
             // Background
             double rayDirLength = Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
