@@ -131,7 +131,7 @@ public class Renderer {
                 t = T*rcpDet;
             }
 
-            if(t != Double.MAX_VALUE) col = new float[]{u, v, w};
+            if(t != Float.MAX_VALUE) col = new float[]{u, v, w};
             else
             {
                 // Background
