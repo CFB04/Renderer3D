@@ -7,4 +7,9 @@ public class Vector2 {
         this.x = x;
         this.y = y;
     }
+
+    public double[] toArray()
+    {
+        return new double[]{x, y};
+    }
 }

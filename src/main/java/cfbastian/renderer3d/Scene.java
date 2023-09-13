@@ -1,74 +1,73 @@
 package cfbastian.renderer3d;
 
-import cfbastian.renderer3d.entities.Entity;
-import cfbastian.renderer3d.entities.lights.Light;
+
+import cfbastian.renderer3d.bodies.Mesh;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 public class Scene {
-    private ArrayList<Entity> entityList = new ArrayList<>();
-    private ArrayList<Light> lightList = new ArrayList<>();
+    private ArrayList<Mesh> meshes = new ArrayList<>();
 
-    public Scene(ArrayList<Entity> entityList, ArrayList<Light> lightList) {
-        this.entityList = entityList;
-        this.lightList = lightList;
-    }
-
-    public Scene() {}
-
-    public void addToEntityList(Entity e) {
-        entityList.add(e);
-    }
-
-    public void removeFromEntityList(int i) {
-        entityList.remove(i);
-    }
-
-    public void addToLightList(Light i) {
-        lightList.add(i);
-    }
-
-    public void removeFromLightList(int i) {
-        entityList.remove(i);
-    }
-
-    public int findEntityIndex(String key)
+    public void addMesh(Mesh mesh)
     {
-        for (int i = 0; i < entityList.size(); i++) if(key.equals(entityList.get(i).getKey())) return i;
-        return -1;
+        for (Mesh m: meshes) {
+            if(mesh.getKey().equals(m.getKey()))
+            {
+                System.err.print("Key taken");
+                return;
+            }
+        }
+        meshes.add(mesh);
     }
 
-    public int findLightIndex(String key)
+    public Mesh getMesh(String key)
     {
-        for (int i = 0; i < lightList.size(); i++) if(key.equals(lightList.get(i).getKey())) return i;
-        return -1;
+        int index = -1;
+        for (int i = 0; i < meshes.size(); i++) if(key.equals(meshes.get(i).getKey())) index = i;
+
+        if(index != -1) return meshes.get(index);
+        System.err.println("Mesh with key \"" + key + "\" not found");
+        return null;
     }
 
-    public Entity getFromEntityList(int i)
+    public synchronized void removeMesh(String key)
     {
-        return entityList.get(i);
+        int index = -1;
+        for (int i = 0; i < meshes.size(); i++) if(key.equals(meshes.get(i).getKey())) index = i;
+
+        if(index != -1) meshes.remove(index);
+        else System.err.println("Mesh with key \"" + key + "\" not found");
     }
 
-    public Light getFromLightList(int i)
+    public double[] getAllVertices()
     {
-        return lightList.get(i);
+        ArrayList<Double> vertices = new ArrayList<>();
+        for (Mesh m : meshes) vertices.addAll(DoubleStream.of(m.getAbsoluteVertices()).boxed().toList());
+        return vertices.stream().mapToDouble(Double::doubleValue).toArray();
     }
 
-    public ArrayList<Entity> getEntityList() {
-        return entityList;
-    }
-
-    public ArrayList<Light> getLightList() {
-        return lightList;
-    }
-
-    public String[] getKeys()
+    public int[] getAllFaces()
     {
-        String[] s = new String[entityList.size() + lightList.size()];
+        ArrayList<Integer> faces = new ArrayList<>();
 
-        for (int i = 0; i < entityList.size(); i++) s[i] = entityList.get(i).getKey();
-        for (int i = 0; i < lightList.size(); i++) s[i + entityList.size()] = lightList.get(i).getKey();
+        int i = 0;
+        for (int j = 0; j < meshes.size(); j++)
+        {
+            int[] facesArr = Arrays.copyOf(meshes.get(j).getFaces(), meshes.get(j).getFaces().length);
+            for (int k = 0; k < facesArr.length; k++) facesArr[k] += i;
+            faces.addAll(IntStream.of(facesArr).boxed().toList());
+            i += meshes.get(j).getAbsoluteVertices().length/3;
+        }
 
-        return s;
+        System.out.println(Arrays.toString(faces.stream().mapToInt(Integer::intValue).toArray()));
+
+        return faces.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    public ArrayList<Mesh> getMeshes() {
+        return meshes;
     }
 }

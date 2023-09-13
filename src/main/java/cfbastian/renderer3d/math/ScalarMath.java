@@ -52,4 +52,9 @@ public class ScalarMath {
         if (x > max) return max;
         else return x;
     }
+
+    public static double weightedAvg(double a, double b, double w)
+    {
+        return a * (1D - w) + b * w;
+    }
 }

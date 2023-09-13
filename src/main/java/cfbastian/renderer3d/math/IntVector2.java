@@ -7,4 +7,9 @@ public class IntVector2 {
         this.x = x;
         this.y = y;
     }
+
+    public int[] toArray()
+    {
+        return new int[]{x, y};
+    }
 }

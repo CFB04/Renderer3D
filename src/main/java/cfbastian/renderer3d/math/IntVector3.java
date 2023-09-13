@@ -8,4 +8,9 @@ public class IntVector3 {
         this.y = y;
         this.z = z;
     }
+
+    public int[] toArray()
+    {
+        return new int[]{x, y, z};
+    }
 }

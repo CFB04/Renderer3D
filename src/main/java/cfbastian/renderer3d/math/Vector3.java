@@ -8,4 +8,9 @@ public class Vector3 {
         this.y = y;
         this.z = z;
     }
+
+    public double[] toArray()
+    {
+        return new double[]{x, y, z};
+    }
 }
