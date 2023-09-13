@@ -8,7 +8,7 @@ public final class VectorMath {
 
     public static Vector2 add(Vector2... vs)
     {
-        Vector2 vRet = new Vector2(0D,0D);
+        Vector2 vRet = new Vector2(0f,0f);
         for (Vector2 v : vs) {
             vRet.x += v.x;
             vRet.y += v.y;
@@ -38,7 +38,7 @@ public final class VectorMath {
 
     public static Vector3 add(Vector3... vs)
     {
-        Vector3 vRet = new Vector3(0D,0D, 0D);
+        Vector3 vRet = new Vector3(0f,0f, 0f);
         for (Vector3 v : vs) {
             vRet.x += v.x;
             vRet.y += v.y;
@@ -90,7 +90,7 @@ public final class VectorMath {
 
     public static Vector2 multiply(Vector2... vs)
     {
-        Vector2 vRet = new Vector2(1D,1D);
+        Vector2 vRet = new Vector2(1f,1f);
         for (Vector2 v : vs) {
             vRet.x *= v.x;
             vRet.y *= v.y;
@@ -120,7 +120,7 @@ public final class VectorMath {
 
     public static Vector3 multiply(Vector3... vs)
     {
-        Vector3 vRet = new Vector3(1D,1D, 1D);
+        Vector3 vRet = new Vector3(1f,1f, 1f);
         for (Vector3 v : vs) {
             vRet.x *= v.x;
             vRet.y *= v.y;
@@ -145,7 +145,7 @@ public final class VectorMath {
         return vRet;
     }
 
-    public static Vector2 scale(Vector2 v1, double s)
+    public static Vector2 scale(Vector2 v1, float s)
     {
         return new Vector2(v1.x * s, v1.y * s);
     }
@@ -155,7 +155,7 @@ public final class VectorMath {
         return new IntVector2(v1.x * s, v1.y * s);
     }
 
-    public static Vector3 scale(Vector3 v1, double s)
+    public static Vector3 scale(Vector3 v1, float s)
     {
         return new Vector3(v1.x * s, v1.y * s, v1.z * s);
     }
@@ -185,45 +185,45 @@ public final class VectorMath {
         return new IntVector3(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
     }
 
-    public static double dot(Vector2 v1, Vector2 v2)
+    public static float dot(Vector2 v1, Vector2 v2)
     {
         return v1.x * v2.x + v1.y * v2.y;
     }
 
-    public static double dot(Vector2... vs)
+    public static float dot(Vector2... vs)
     {
         Vector2 v = multiply(vs);
         return v.x + v.y;
     }
 
-    public static double dot(IntVector2 v1, IntVector2 v2)
+    public static float dot(IntVector2 v1, IntVector2 v2)
     {
         return v1.x * v2.x + v1.y * v2.y;
     }
 
-    public static double dot(IntVector2... vs)
+    public static float dot(IntVector2... vs)
     {
         IntVector2 v = multiply(vs);
         return v.x + v.y;
     }
 
-    public static double dot(Vector3 v1, Vector3 v2)
+    public static float dot(Vector3 v1, Vector3 v2)
     {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    public static double dot(Vector3... vs)
+    public static float dot(Vector3... vs)
     {
         Vector3 v = multiply(vs);
         return v.x + v.y + v.z;
     }
 
-    public static double dot(IntVector3 v1, IntVector3 v2)
+    public static float dot(IntVector3 v1, IntVector3 v2)
     {
         return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
     }
 
-    public static double dot(IntVector3... vs)
+    public static float dot(IntVector3... vs)
     {
         IntVector3 v = multiply(vs);
         return v.x + v.y + v.z;
@@ -231,43 +231,43 @@ public final class VectorMath {
 
     public static Vector2 normalize(Vector2 v)
     {
-        double length = VectorMath.length(v);
+        float length = VectorMath.length(v);
         return new Vector2(v.x/length, v.y/length);
     }
     
     public static Vector3 normalize(Vector3 v)
     {
-        double length = VectorMath.length(v);
+        float length = VectorMath.length(v);
         return new Vector3(v.x/length, v.y/length, v.z/length);
     }
 
-    public static double length(Vector2 v)
+    public static float length(Vector2 v)
     {
-        return Math.sqrt(v.x * v.x + v.y * v.y);
+        return (float) Math.sqrt(v.x * v.x + v.y * v.y);
     }
 
-    public static double length(Vector3 v)
+    public static float length(Vector3 v)
     {
-        return Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        return (float) Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
     }
 
-    public static double distance(Vector2 v1, Vector2 v2)
+    public static float distance(Vector2 v1, Vector2 v2)
     {
         return length(subtract(v1, v2));
     }
 
-    public static double distance(Vector3 v1, Vector3 v2)
+    public static float distance(Vector3 v1, Vector3 v2)
     {
         return length(subtract(v1, v2));
     }
 
-    public static double angleBetween(Vector3 v1, Vector3 v2)
+    public static float angleBetween(Vector3 v1, Vector3 v2)
     {
-        return Math.acos(dot(v1, v2) / (length(v1) * length(v2)));
+        return (float) Math.acos(dot(v1, v2) / (length(v1) * length(v2)));
     }
 
-    public static double[] cross(double[] v1, double[] v2)
+    public static float[] cross(float[] v1, float[] v2)
     {
-        return new double[]{v1[1]*v2[2] - v2[1]*v1[2], v1[0]*v2[2] - v2[0]*v1[2], v1[0]*v2[1] - v2[0]*v1[1]};
+        return new float[]{v1[1]*v2[2] - v2[1]*v1[2], v1[0]*v2[2] - v2[0]*v1[2], v1[0]*v2[1] - v2[0]*v1[1]};
     }
 }

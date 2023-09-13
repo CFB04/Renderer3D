@@ -5,7 +5,6 @@ import cfbastian.renderer3d.bodies.Mesh;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public class Scene {
@@ -42,11 +41,15 @@ public class Scene {
         else System.err.println("Mesh with key \"" + key + "\" not found");
     }
 
-    public double[] getAllVertices()
+    public float[] getAllVertices()
     {
-        ArrayList<Double> vertices = new ArrayList<>();
-        for (Mesh m : meshes) vertices.addAll(DoubleStream.of(m.getAbsoluteVertices()).boxed().toList());
-        return vertices.stream().mapToDouble(Double::doubleValue).toArray();
+        ArrayList<Float> vertices = new ArrayList<>();
+        for (Mesh m : meshes) for (float f : m.getAbsoluteVertices()) vertices.add(f);
+//        for (Mesh m : meshes) vertices.addAll(DoubleStream.of(m.getAbsoluteVertices()).boxed().toList());
+        float[] verticesArr = new float[vertices.size()];
+        for (int i = 0; i < vertices.size(); i++) verticesArr[i] = vertices.get(i);
+        //return vertices.stream().mapToDouble(Double::doubleValue).toArray();
+        return verticesArr;
     }
 
     public int[] getAllFaces()
@@ -54,17 +57,12 @@ public class Scene {
         ArrayList<Integer> faces = new ArrayList<>();
 
         int i = 0;
-        for (int j = 0; j < meshes.size(); j++)
-        {
-            int[] facesArr = Arrays.copyOf(meshes.get(j).getFaces(), meshes.get(j).getFaces().length);
-            for (int k = 0; k < facesArr.length; k++) facesArr[k] += i;
+        for (Mesh mesh : meshes) {
+            int[] facesArr = Arrays.copyOf(mesh.getFaces(), mesh.getFaces().length);
+            for (int j = 0; j < facesArr.length; j++) facesArr[j] += i;
             faces.addAll(IntStream.of(facesArr).boxed().toList());
-            i += meshes.get(j).getAbsoluteVertices().length/3;
+            i += mesh.getAbsoluteVertices().length / 3;
         }
         return faces.stream().mapToInt(Integer::intValue).toArray();
-    }
-
-    public ArrayList<Mesh> getMeshes() {
-        return meshes;
     }
 }

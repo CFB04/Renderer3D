@@ -1,15 +1,15 @@
 package cfbastian.renderer3d.math;
 
 public class Vector2 {
-    public double x, y;
+    public float x, y;
 
-    public Vector2(double x, double y) {
+    public Vector2(float x, float y) {
         this.x = x;
         this.y = y;
     }
 
-    public double[] toArray()
+    public float[] toArray()
     {
-        return new double[]{x, y};
+        return new float[]{x, y};
     }
 }

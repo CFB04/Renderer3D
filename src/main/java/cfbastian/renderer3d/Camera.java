@@ -9,41 +9,41 @@ import java.util.Arrays;
 
 public class Camera {
     private Vector3 pos, dir;
-    private double focalLength, fov, viewportHeight, viewportWidth, halfViewportDiagonal;
-    private double uSpacing, vSpacing;
+    private float focalLength, fov, viewportHeight, viewportWidth, halfViewportDiagonal;
+    private float uSpacing, vSpacing;
     private Vector3 deltaU, deltaV;
     private Vector3 viewportCenter, viewportUpperLeft, upperLeftPixel; // Center is not actually rendered when either width or height is odd
-    private double theta, phi; // Theta is angle off the positive x-axis, phi is angle off the (vertical) positive z-axis
-    private double[] rays;
+    private float theta, phi; // Theta is angle off the positive x-axis, phi is angle off the (vertical) positive z-axis
+    private float[] rays;
     private int[] kIdxs;
-    private double[] shearFactors;
+    private float[] shearFactors;
 
     private int numRays;
 
-    public Camera(Vector3 pos, double theta, double phi, double fov) {
+    public Camera(Vector3 pos, float theta, float phi, float fov) {
         this.pos = pos;
         this.theta = theta;
         this.phi = phi;
         this.fov = fov;
 
-        this.viewportWidth = 2.0;
-        this.viewportHeight = viewportWidth * (double) Application.HEIGHT / (double) Application.WIDTH;
-        this.halfViewportDiagonal = Math.sqrt(viewportWidth*viewportWidth + viewportHeight*viewportHeight)/2D;
+        this.viewportWidth = 2.0f;
+        this.viewportHeight = viewportWidth * (float) Application.HEIGHT / (float) Application.WIDTH;
+        this.halfViewportDiagonal = (float) (Math.sqrt(viewportWidth*viewportWidth + viewportHeight*viewportHeight)/2f);
 
-        this.dir = new Vector3(Math.sin(phi)*Math.cos(theta), Math.sin(phi)*Math.sin(theta), Math.cos(phi));
-        this.focalLength = 1D; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); TODO implement FOV
+        this.dir = new Vector3((float) (Math.sin(phi)*Math.cos(theta)), (float) (Math.sin(phi)*Math.sin(theta)), (float) Math.cos(phi));
+        this.focalLength = 1f; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); TODO implement FOV
         this.viewportCenter = VectorMath.scale(dir, focalLength);
 //        System.out.println("Focal length: " + focalLength);
 
-        this.uSpacing = viewportWidth / (double) (Application.WIDTH);
-        this.vSpacing = viewportHeight / (double) (Application.HEIGHT);
-        this.deltaU = new Vector3(uSpacing*Math.sin(theta), -uSpacing*Math.cos(theta), 0D);
-        this.deltaV = new Vector3(vSpacing*Math.cos(phi)*Math.cos(theta), vSpacing*Math.cos(phi)*Math.sin(theta), -vSpacing*Math.sin(phi));
-        this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
-        this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5), VectorMath.scale(deltaV, 0.5));
+        this.uSpacing = viewportWidth / (float) (Application.WIDTH);
+        this.vSpacing = viewportHeight / (float) (Application.HEIGHT);
+        this.deltaU = new Vector3((float) (uSpacing*Math.sin(theta)), (float) (-uSpacing*Math.cos(theta)), 0f);
+        this.deltaV = new Vector3((float) (vSpacing*Math.cos(phi)*Math.cos(theta)), (float) (vSpacing*Math.cos(phi)*Math.sin(theta)), (float) (-vSpacing*Math.sin(phi)));
+        this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2f), VectorMath.scale(deltaV, -Application.HEIGHT / 2f)));
+        this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5f), VectorMath.scale(deltaV, 0.5f));
 
         this.numRays = MainController.getPixelsLength();
-        this.rays = new double[numRays * 3];
+        this.rays = new float[numRays * 3];
         calculateRays();
     }
 
@@ -59,52 +59,51 @@ public class Camera {
         return dir;
     }
 
-    public double getFov() {
+    public float getFov() {
         return fov;
     }
 
-    public void setFov(double fov) {
+    public void setFov(float fov) {
         this.fov = fov;
-        this.focalLength = this.viewportWidth / (Math.atan(this.fov * 0.5));
     }
 
-    public double getuSpacing() {
+    public float getuSpacing() {
         return uSpacing;
     }
 
-    public double getvSpacing() {
+    public float getvSpacing() {
         return vSpacing;
     }
 
-    public double getTheta() {
+    public float getTheta() {
         return theta;
     }
 
-    public double getPhi() {
+    public float getPhi() {
         return phi;
     }
 
-    public void setAngle(double theta, double phi)
+    public void setAngle(float theta, float phi)
     {
         this.theta = theta;// % Math.PI*2;
-        this.phi = ScalarMath.bound(phi, 0, Math.PI);
-        this.dir = new Vector3(Math.sin(phi)*Math.cos(theta), Math.sin(phi)*Math.sin(theta), Math.cos(phi));
+        this.phi = ScalarMath.bound(phi, 0f, (float) Math.PI);
+        this.dir = new Vector3((float) (Math.sin(phi)*Math.cos(theta)), (float) (Math.sin(phi)*Math.sin(theta)), (float) Math.cos(phi));
         this.viewportCenter = VectorMath.scale(dir, focalLength);
-        this.deltaU = new Vector3(uSpacing*Math.sin(theta), -uSpacing*Math.cos(theta), 0D);
-        this.deltaV = new Vector3(vSpacing*Math.cos(phi)*Math.cos(theta), vSpacing*Math.cos(phi)*Math.sin(theta), -vSpacing*Math.sin(phi));
-        this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2D), VectorMath.scale(deltaV, -Application.HEIGHT / 2D)));
-        this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5), VectorMath.scale(deltaV, 0.5));
+        this.deltaU = new Vector3((float) (uSpacing*Math.sin(theta)), (float) (-uSpacing*Math.cos(theta)), 0f);
+        this.deltaV = new Vector3((float) (vSpacing*Math.cos(phi)*Math.cos(theta)), (float) (vSpacing*Math.cos(phi)*Math.sin(theta)), (float) (-vSpacing*Math.sin(phi)));
+        this.viewportUpperLeft = VectorMath.add(viewportCenter, VectorMath.add(VectorMath.scale(deltaU, -Application.WIDTH / 2f), VectorMath.scale(deltaV, -Application.HEIGHT / 2f)));
+        this.upperLeftPixel = VectorMath.add(viewportUpperLeft, VectorMath.scale(deltaU, 0.5f), VectorMath.scale(deltaV, 0.5f));
         calculateRays();
     }
 
     public void calculateRays() //TODO partial precomputation for efficiency
     {
-        double[] us = new double[Application.WIDTH * 3];
-        double[] vs = new double[Application.HEIGHT * 3];
+        float[] us = new float[Application.WIDTH * 3];
+        float[] vs = new float[Application.HEIGHT * 3];
 
         for (int i = 0; i < Application.WIDTH; i++)
         {
-            double[] u = VectorMath.scale(deltaU, i).toArray();
+            float[] u = VectorMath.scale(deltaU, i).toArray();
             us[i*3] = u[0];
             us[i*3+1] = u[1];
             us[i*3+2] = u[2];
@@ -112,13 +111,13 @@ public class Camera {
 
         for (int i = 0; i < Application.HEIGHT; i++)
         {
-            double[] v = VectorMath.scale(deltaV, i).toArray();
+            float[] v = VectorMath.scale(deltaV, i).toArray();
             vs[i*3] = v[0];
             vs[i*3+1] = v[1];
             vs[i*3+2] = v[2];
         }
 
-        double[] upperLeftPixel = this.upperLeftPixel.toArray();
+        float[] upperLeftPixel = this.upperLeftPixel.toArray();
 
         for (int i = 0; i < numRays; i++) {
             int x = i%Application.WIDTH, y = i/Application.WIDTH;
@@ -132,10 +131,10 @@ public class Camera {
     public void precalculation()
     {
         kIdxs = new int[rays.length];
-        shearFactors = new double[rays.length];
+        shearFactors = new float[rays.length];
 
         for (int i = 0; i < rays.length/3; i++) {
-            double[] absray = new double[]{Math.abs(rays[i*3]), Math.abs(rays[i*3+1]), Math.abs(rays[i*3+2])};
+            float[] absray = new float[]{Math.abs(rays[i*3]), Math.abs(rays[i*3+1]), Math.abs(rays[i*3+2])};
             int kz = absray[0]>absray[1]? 0 : (absray[1]>absray[2]? 1 : 2);
             int kx = kz + 1 == 3? 0: kz + 1;
             int ky = kx + 1 == 3? 0: kx + 1;
@@ -152,11 +151,11 @@ public class Camera {
             kIdxs[i*3+2] = kz;
             shearFactors[i*3] = rays[i*3 + kx]/rays[i*3 + kz];   //Sx
             shearFactors[i*3+1] = rays[i*3 + ky]/rays[i*3 + kz]; //Sy
-            shearFactors[i*3+2] = 1D/rays[i*3 + kz];             //Sz
+            shearFactors[i*3+2] = 1f/rays[i*3 + kz];             //Sz
         }
     }
 
-    public double[] getRays()
+    public float[] getRays()
     {
         return rays;
     }
@@ -165,7 +164,7 @@ public class Camera {
         return kIdxs;
     }
 
-    public double[] getShearFactors() {
+    public float[] getShearFactors() {
         return shearFactors;
     }
 }

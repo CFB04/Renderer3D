@@ -1,16 +1,16 @@
 package cfbastian.renderer3d.math;
 
 public class ScalarMath {
-    public static double min(double... x)
+    public static float min(float... x)
     {
-        double min = Double.MAX_VALUE;
+        float min = Float.MAX_VALUE;
         for (int i = 0; i < x.length; i++) min = Math.min(min, x[i]);
         return min;
     }
 
-    public static double max(double... x)
+    public static float max(float... x)
     {
-        double max = Double.MIN_VALUE;
+        float max = Float.MIN_VALUE;
         for (int i = 0; i < x.length; i++) max = Math.min(max, x[i]);
         return max;
     }
@@ -34,27 +34,27 @@ public class ScalarMath {
         else return x;
     }
 
-    public static double bound(double x, double min, double max)
+    public static float bound(float x, float min, float max)
     {
         if(x < min) return min;
         else if (x > max) return max;
         else return x;
     }
 
-    public static double boundMin(double x, double min)
+    public static float boundMin(float x, float min)
     {
         if(x < min) return min;
         else return x;
     }
 
-    public static double boundMax(double x, double max)
+    public static float boundMax(float x, float max)
     {
         if (x > max) return max;
         else return x;
     }
 
-    public static double weightedAvg(double a, double b, double w)
+    public static float weightedAvg(float a, float b, float w)
     {
-        return a * (1D - w) + b * w;
+        return a * (1f - w) + b * w;
     }
 }

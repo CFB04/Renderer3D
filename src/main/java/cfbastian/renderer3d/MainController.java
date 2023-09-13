@@ -42,7 +42,7 @@ public class MainController {
         pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
         imageView.setImage(image);
 
-        cameraController = new CameraController(new Camera(new Vector3(0D, 0D, 0D), 0D, Math.PI/2D, 90D), 0.002, 0.02, 0.5, 1.0);
+        cameraController = new CameraController(new Camera(new Vector3(0f, 0f, 0f), 0f, (float) (Math.PI/2f), 90f), 0.002f, 0.02f, 0.5f, 1.0f);
 
         renderer.init();
 
@@ -89,7 +89,7 @@ public class MainController {
     @FXML
     public void onMouseMoved(MouseEvent mouseEvent)
     {
-        if(mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED && !first) cameraController.ChangeCameraAngle(mouseEvent.getSceneX() - mouseX, mouseEvent.getSceneY() - mouseY);
+        if(mouseEvent.getEventType() == MouseEvent.MOUSE_MOVED && !first) cameraController.ChangeCameraAngle((float) (mouseEvent.getSceneX() - mouseX), (float) (mouseEvent.getSceneY() - mouseY));
         mouseX = mouseEvent.getSceneX();
         mouseY = mouseEvent.getSceneY();
         first = false;

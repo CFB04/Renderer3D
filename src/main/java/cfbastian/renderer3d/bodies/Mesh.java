@@ -5,16 +5,16 @@ import cfbastian.renderer3d.math.VectorMath;
 import java.util.Arrays;
 
 public class Mesh {
-    protected double[] pos;
-    protected double scale;
-    protected double[] vertices, absoluteVertices; // Anchor position, points relative to anchor, absolute position of points
-    protected double[] textureCoords;
-    protected double[] vertexNormals, faceNormals;
+    protected float[] pos;
+    protected float scale;
+    protected float[] vertices, absoluteVertices; // Anchor position, points relative to anchor, absolute position of points
+    protected float[] textureCoords;
+    protected float[] vertexNormals, faceNormals;
     protected int[] faces, uvs, normals;
     protected final int uvDimensions;
     private final String key;
 
-    public Mesh(double[] pos, double scale, double[] vertices, double[] vertexTextures, double[] vertexNormals, int[] faces, int[] uvs, int[] normals, int uvDimensions, String key) {
+    public Mesh(float[] pos, float scale, float[] vertices, float[] vertexTextures, float[] vertexNormals, int[] faces, int[] uvs, int[] normals, int uvDimensions, String key) {
         this.pos = pos;
         this.scale = scale;
         this.vertices = vertices;
@@ -26,8 +26,8 @@ public class Mesh {
         this.uvDimensions = uvDimensions;
         this.key = key;
 
-        absoluteVertices = new double[vertices.length];
-        faceNormals = new double[faces.length];
+        absoluteVertices = new float[vertices.length];
+        faceNormals = new float[faces.length];
         calculateAbsoluteVertices();
         calculateFaceNormals();
     }
@@ -36,11 +36,11 @@ public class Mesh {
         return key;
     }
 
-    public double[] getPos() {
+    public float[] getPos() {
         return pos;
     }
 
-    public void setPos(double[] pos) {
+    public void setPos(float[] pos) {
         this.pos = pos;
         calculateAbsoluteVertices();
     }
@@ -54,44 +54,44 @@ public class Mesh {
     {
         for (int i = 0; i < normals.length/3; i++)
         {
-            double[] normal = getNormal(
-                    new double[]{vertexNormals[normals[i*3]*3], vertexNormals[normals[i*3]*3+1], vertexNormals[normals[i*3]*3+2]},
-                    new double[]{vertexNormals[normals[i*3+1]*3], vertexNormals[normals[i*3+1]*3+1], vertexNormals[normals[i*3+1]*3+2]},
-                    new double[]{vertexNormals[normals[i*3+2]*3], vertexNormals[normals[i*3+2]*3+1], vertexNormals[normals[i*3+2]*3+2]});
+            float[] normal = getNormal(
+                    new float[]{vertexNormals[normals[i*3]*3], vertexNormals[normals[i*3]*3+1], vertexNormals[normals[i*3]*3+2]},
+                    new float[]{vertexNormals[normals[i*3+1]*3], vertexNormals[normals[i*3+1]*3+1], vertexNormals[normals[i*3+1]*3+2]},
+                    new float[]{vertexNormals[normals[i*3+2]*3], vertexNormals[normals[i*3+2]*3+1], vertexNormals[normals[i*3+2]*3+2]});
             faceNormals[i*3] = normal[0];
             faceNormals[i*3+1] = normal[1];
             faceNormals[i*3+2] = normal[2];
         }
     }
-    public double[] getNormal(double[] v1, double[] v2, double[] v3) { // This averages the vertex normals TODO blend using UVs
-        return new double[]{(v1[0] + v2[0] + v3[0]) / 3D, (v1[1] + v2[1] + v3[1]) / 3D, (v1[2] + v2[2] + v3[2]) / 3D};
+    public float[] getNormal(float[] v1, float[] v2, float[] v3) { // This averages the vertex normals TODO blend using UVs
+        return new float[]{(v1[0] + v2[0] + v3[0]) / 3f, (v1[1] + v2[1] + v3[1]) / 3f, (v1[2] + v2[2] + v3[2]) / 3f};
     }
 
-    public double getScale() {
+    public float getScale() {
         return scale;
     }
 
-    public void setScale(double scale) {
+    public void setScale(float scale) {
         this.scale = scale;
     }
 
-    public double[] getVertices() {
+    public float[] getVertices() {
         return vertices;
     }
 
-    public double[] getAbsoluteVertices() {
+    public float[] getAbsoluteVertices() {
         return absoluteVertices;
     }
 
-    public double[] getTextureCoords() {
+    public float[] getTextureCoords() {
         return textureCoords;
     }
 
-    public double[] getVertexNormals() {
+    public float[] getVertexNormals() {
         return vertexNormals;
     }
 
-    public double[] getFaceNormals() {
+    public float[] getFaceNormals() {
         return faceNormals;
     }
 
