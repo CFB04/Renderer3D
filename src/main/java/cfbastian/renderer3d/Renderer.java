@@ -24,13 +24,17 @@ public class Renderer {
 
     public void init()
     {
-        range = Range.create(pixels.length, 6);
+        range = Range.create(pixels.length, 8);
 
         mainScene = new Scene();
         try {
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "Quad1"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "StaffordBunny"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/UtahTeapot.obj", new float[]{6f, 0f, 0f}, 5f, 2, "Teapot"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Sphere"));
             mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -53,8 +57,6 @@ public class Renderer {
         return pixels;
     }
 
-
-
     private class RenderKernel extends Kernel
     {
         @Local float[] cameraPos;
@@ -73,7 +75,6 @@ public class Renderer {
             this.faces = faces;
         }
 
-
         /**
          * Gets the color for the pixel at the given index. Ray-Triangle intersection algorithm from
          * Watertight Ray/Triangle Intersection by Woop et al. TODO fix citation
@@ -83,13 +84,16 @@ public class Renderer {
         {
             int i = getGlobalId();
 
-            float[] ray = Arrays.copyOfRange(rays, i*3, i*3+3);
+            float rayX = rays[i*3];
+            float rayY = rays[i*3+1];
+            float rayZ = rays[i*3+2];
+
             float r, g, b;
 
             int kx = kIdxs[i*3], ky = kIdxs[i*3+1], kz = kIdxs[i*3+2];
             float Sx = shearFactors[i*3], Sy = shearFactors[i*3+1], Sz = shearFactors[i*3+2];
 
-            float t = Float.MAX_VALUE, u = Float.MAX_VALUE, v = Float.MAX_VALUE, w = Float.MAX_VALUE;
+            float t = 3.4028235E38f, u = 0f, v = 0f, w = 0f; // 3.4028235E38f is Float.MAX_VALUE
 
             for (int j = 0; j < faces.length/3; j++) {
                 float Akx = vertices[faces[j*3]*3+kx] - cameraPos[kx];
@@ -125,11 +129,6 @@ public class Renderer {
 
                 if(T <= 0 || T >= t * det) continue;
 
-                boolean detSign = det > 0;
-                boolean TSign = T > 0;
-                boolean sign = Boolean.logicalXor(detSign, TSign);
-//            if(!sign) continue; //TODO fix condition
-
                 float rcpDet = 1f/det;
                 u = U*rcpDet;
                 v = V*rcpDet;
@@ -137,7 +136,7 @@ public class Renderer {
                 t = T*rcpDet;
             }
 
-            if(t != Float.MAX_VALUE)
+            if(t != 3.4028235E38f)
             {
                 r = u;
                 g = v;
@@ -146,8 +145,8 @@ public class Renderer {
             else
             {
                 // Background
-                float rayDirLength = (float) Math.sqrt(ray[0]*ray[0] + ray[1]*ray[1] + ray[2]*ray[2]);
-                float[] unitDir = new float[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
+                float rayDirLength = sqrt(rayX*rayX + rayY*rayY + rayZ*rayZ);
+                float[] unitDir = new float[]{rayX/rayDirLength, rayY/rayDirLength, rayZ/rayDirLength};
                 float a = 0.5f * (unitDir[2] + 1f);
 
                 r = (1f - a) * 1 + a * 0.5f;
@@ -155,12 +154,12 @@ public class Renderer {
                 b = (1f - a) * 1 + a;
             }
 
-            r = Math.min(r, 1f);
-            g = Math.min(g, 1f);
-            b = Math.min(b, 1f);
-            r = Math.max(r, 0f);
-            g = Math.max(g, 0f);
-            b = Math.max(b, 0f);
+            r = min(r, 1f);
+            g = min(g, 1f);
+            b = min(b, 1f);
+            r = max(r, 0f);
+            g = max(g, 0f);
+            b = max(b, 0f);
             int rInt = (int) (r * 255);
             int gInt = (int) (g * 255);
             int bInt = (int) (b * 255);

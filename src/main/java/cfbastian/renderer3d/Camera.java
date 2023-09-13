@@ -27,7 +27,7 @@ public class Camera {
         this.viewportHeight = viewportWidth * (float) Application.HEIGHT / (float) Application.WIDTH;
 
         this.dir = new Vector3((float) (Math.sin(phi)*Math.cos(theta)), (float) (Math.sin(phi)*Math.sin(theta)), (float) Math.cos(phi));
-        this.focalLength = 1f; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); TODO implement FOV
+        this.focalLength = 0.5f * viewportWidth / ((float) Math.tan(Math.PI * this.fov / 360f));
         this.viewportCenter = VectorMath.scale(dir, focalLength);
 
         this.uSpacing = viewportWidth / (float) (Application.WIDTH);
@@ -60,6 +60,7 @@ public class Camera {
 
     public void setFov(float fov) {
         this.fov = fov;
+        this.focalLength = 0.5f * viewportWidth / ((float) Math.tan(Math.PI * this.fov / 360f));
     }
 
     public float getUSpacing() {
@@ -91,7 +92,7 @@ public class Camera {
         calculateRays();
     }
 
-    public void calculateRays() //TODO partial precomputation for efficiency
+    public void calculateRays()
     {
         float[] us = new float[Application.WIDTH * 3];
         float[] vs = new float[Application.HEIGHT * 3];
