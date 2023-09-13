@@ -1,9 +1,5 @@
 package cfbastian.renderer3d.bodies;
 
-import cfbastian.renderer3d.math.VectorMath;
-
-import java.util.Arrays;
-
 public class Mesh {
     protected float[] pos;
     protected float scale;

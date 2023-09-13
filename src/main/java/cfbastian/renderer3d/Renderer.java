@@ -3,8 +3,6 @@ package cfbastian.renderer3d;
 import cfbastian.renderer3d.util.ObjFileManager;
 import com.aparapi.Kernel;
 import com.aparapi.Range;
-import com.aparapi.device.Device;
-import com.aparapi.internal.kernel.KernelManager;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,7 +29,8 @@ public class Renderer {
         mainScene = new Scene();
         try {
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "Quad1"));
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4.5f, 0f, 0f}, 1f, 2, "Quad2"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -66,17 +65,12 @@ public class Renderer {
         @Local int[] faces;
 
         public synchronized void update(float[] cameraPos, float[] rays, int[] kIdxs, float[] shearFactors, float[] vertices, int[] faces) {
-            this.cameraPos = new float[cameraPos.length];
-            this.rays = new float[rays.length];
+            this.cameraPos = cameraPos;
+            this.rays = rays;
             this.kIdxs = kIdxs;
-            this.shearFactors = new float[shearFactors.length];
-            this.vertices = new float[vertices.length];
+            this.shearFactors = shearFactors;
+            this.vertices = vertices;
             this.faces = faces;
-
-            for (int i = 0; i < cameraPos.length; i++) this.cameraPos[i] = (float) cameraPos[i];
-            for (int i = 0; i < rays.length; i++) this.rays[i] = (float) rays[i];
-            for (int i = 0; i < shearFactors.length; i++) this.shearFactors[i] = (float) shearFactors[i];
-            for (int i = 0; i < vertices.length; i++) this.vertices[i] = (float) vertices[i];
         }
 
 
@@ -145,7 +139,7 @@ public class Renderer {
                 float[] unitDir = new float[]{ray[0]/rayDirLength, ray[1]/rayDirLength, ray[2]/rayDirLength};
                 float a = 0.5f * (unitDir[2] + 1f);
 
-                col = new float[]{(1f - a) * 1f + a * 0.5f, (1f - a) * 1f + a * 0.7f, (1f - a) * 1f + a};
+                col = new float[]{(1f - a) * 1 + a * 0.5f, (1f - a) * 1 + a * 0.7f, (1f - a) * 1 + a};
             }
 
             col[0] = Math.min(col[0], 1f);

@@ -45,10 +45,8 @@ public class Scene {
     {
         ArrayList<Float> vertices = new ArrayList<>();
         for (Mesh m : meshes) for (float f : m.getAbsoluteVertices()) vertices.add(f);
-//        for (Mesh m : meshes) vertices.addAll(DoubleStream.of(m.getAbsoluteVertices()).boxed().toList());
         float[] verticesArr = new float[vertices.size()];
         for (int i = 0; i < vertices.size(); i++) verticesArr[i] = vertices.get(i);
-        //return vertices.stream().mapToDouble(Double::doubleValue).toArray();
         return verticesArr;
     }
 

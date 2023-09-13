@@ -4,57 +4,56 @@ public class ScalarMath {
     public static float min(float... x)
     {
         float min = Float.MAX_VALUE;
-        for (int i = 0; i < x.length; i++) min = Math.min(min, x[i]);
+        for (float v : x) min = Math.min(min, v);
         return min;
     }
 
     public static float max(float... x)
     {
         float max = Float.MIN_VALUE;
-        for (int i = 0; i < x.length; i++) max = Math.min(max, x[i]);
+        for (float v : x) max = Math.min(max, v);
         return max;
     }
 
     public static int bound(int x, int min, int max)
     {
         if(x < min) return min;
-        else if (x > max) return max;
-        else return x;
+        else return Math.min(x, max);
     }
 
     public static int boundMin(int x, int min)
     {
-        if(x < min) return min;
-        else return x;
+        return Math.max(x, min);
     }
 
     public static int boundMax(int x, int max)
     {
-        if (x > max) return max;
-        else return x;
+        return Math.min(x, max);
     }
 
     public static float bound(float x, float min, float max)
     {
         if(x < min) return min;
-        else if (x > max) return max;
-        else return x;
+        else return Math.min(x, max);
     }
 
     public static float boundMin(float x, float min)
     {
-        if(x < min) return min;
-        else return x;
+        return Math.max(x, min);
     }
 
     public static float boundMax(float x, float max)
     {
-        if (x > max) return max;
-        else return x;
+        return Math.min(x, max);
     }
 
     public static float weightedAvg(float a, float b, float w)
     {
         return a * (1f - w) + b * w;
+    }
+
+    public static float sin(float x)
+    {
+        return (float) Math.sin(x);
     }
 }

@@ -1,15 +1,12 @@
 package cfbastian.renderer3d;
 
-import cfbastian.renderer3d.math.IntVector3;
 import cfbastian.renderer3d.math.ScalarMath;
 import cfbastian.renderer3d.math.Vector3;
 import cfbastian.renderer3d.math.VectorMath;
 
-import java.util.Arrays;
-
 public class Camera {
     private Vector3 pos, dir;
-    private float focalLength, fov, viewportHeight, viewportWidth, halfViewportDiagonal;
+    private float focalLength, fov, viewportHeight, viewportWidth;
     private float uSpacing, vSpacing;
     private Vector3 deltaU, deltaV;
     private Vector3 viewportCenter, viewportUpperLeft, upperLeftPixel; // Center is not actually rendered when either width or height is odd
@@ -28,12 +25,10 @@ public class Camera {
 
         this.viewportWidth = 2.0f;
         this.viewportHeight = viewportWidth * (float) Application.HEIGHT / (float) Application.WIDTH;
-        this.halfViewportDiagonal = (float) (Math.sqrt(viewportWidth*viewportWidth + viewportHeight*viewportHeight)/2f);
 
         this.dir = new Vector3((float) (Math.sin(phi)*Math.cos(theta)), (float) (Math.sin(phi)*Math.sin(theta)), (float) Math.cos(phi));
         this.focalLength = 1f; //2D * viewportWidth / (Math.tan(Math.PI * this.fov / 90D)); TODO implement FOV
         this.viewportCenter = VectorMath.scale(dir, focalLength);
-//        System.out.println("Focal length: " + focalLength);
 
         this.uSpacing = viewportWidth / (float) (Application.WIDTH);
         this.vSpacing = viewportHeight / (float) (Application.HEIGHT);
@@ -67,11 +62,11 @@ public class Camera {
         this.fov = fov;
     }
 
-    public float getuSpacing() {
+    public float getUSpacing() {
         return uSpacing;
     }
 
-    public float getvSpacing() {
+    public float getVSpacing() {
         return vSpacing;
     }
 
@@ -160,11 +155,13 @@ public class Camera {
         return rays;
     }
 
-    public int[] getkIdxs() {
+    public int[] getKIdxs()
+    {
         return kIdxs;
     }
 
-    public float[] getShearFactors() {
+    public float[] getShearFactors()
+    {
         return shearFactors;
     }
 }

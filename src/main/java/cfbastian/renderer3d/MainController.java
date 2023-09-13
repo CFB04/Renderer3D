@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.image.*;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.robot.Robot;
 
 import java.util.Arrays;
 
@@ -26,8 +25,6 @@ public class MainController {
     static int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
 
     long startTime;
-
-    Robot robot = new Robot();
 
     @FXML
     public void initialize()

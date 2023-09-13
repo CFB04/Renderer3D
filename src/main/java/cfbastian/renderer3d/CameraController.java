@@ -66,7 +66,7 @@ public class CameraController {
     }
 
     public int[] getCameraKIdxs() {
-        return camera.getkIdxs();
+        return camera.getKIdxs();
     }
 
     public float[] getCameraShearFactors() {
