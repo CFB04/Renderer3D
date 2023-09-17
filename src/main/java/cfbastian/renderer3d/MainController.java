@@ -22,7 +22,7 @@ public class MainController {
     RenderLoop renderLoop = new RenderLoop();
     Renderer renderer = new Renderer();
 
-    static int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
+    static int[] pixels = new int[Application.width * Application.height];
 
     long startTime;
 
@@ -31,12 +31,12 @@ public class MainController {
     {
         Arrays.fill(pixels, 0xFF000000);
 
-        imageView.setFitWidth(Application.WIDTH);
-        imageView.setFitHeight(Application.HEIGHT);
-        image = new WritableImage(Application.WIDTH, Application.HEIGHT);
+        imageView.setFitWidth(Application.width);
+        imageView.setFitHeight(Application.height);
+        image = new WritableImage(Application.width, Application.height);
         pixelWriter = image.getPixelWriter();
         pixelFormat = WritablePixelFormat.getIntArgbInstance();
-        pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
+        pixelWriter.setPixels(0, 0, Application.width, Application.height, pixelFormat, pixels, 0, Application.width);
         imageView.setImage(image);
 
         cameraController = new CameraController(new Camera(new Vector3(0f, 0f, 0f), 0f, (float) (Math.PI/2f), 90f), 0.002f, 0.02f, 0.5f, 1.0f);
@@ -62,7 +62,7 @@ public class MainController {
 
             pixels = renderer.render(elapsedTime, cameraController.getCameraRays(), cameraController.getCameraKIdxs(), cameraController.getCameraShearFactors(), cameraController.getCameraPos());
 
-            pixelWriter.setPixels(0, 0, Application.WIDTH, Application.HEIGHT, pixelFormat, pixels, 0, Application.WIDTH);
+            pixelWriter.setPixels(0, 0, Application.width, Application.height, pixelFormat, pixels, 0, Application.width);
             imageView.setImage(image);
 
             frames++;

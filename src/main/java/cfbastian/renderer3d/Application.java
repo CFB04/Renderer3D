@@ -10,13 +10,13 @@ import java.io.IOException;
 
 public class Application extends javafx.application.Application {
 
-    public final static int WIDTH = 1280, HEIGHT = 720;
+    public static int width = 1280, height = 720;
     private static Scene scene;
 
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("renderer-view.fxml"));
-        scene = new Scene(fxmlLoader.load(), WIDTH, HEIGHT);
+        scene = new Scene(fxmlLoader.load(), width, height);
 
         scene.setFill(Color.LIGHTGRAY);
         scene.getRoot().requestFocus();

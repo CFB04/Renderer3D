@@ -5,11 +5,8 @@ import com.aparapi.Kernel;
 import com.aparapi.Range;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Renderer {
-    private final int[] pixels = new int[Application.WIDTH * Application.HEIGHT];
-
     private Scene mainScene;
     double elapsedTime;
 
@@ -24,7 +21,7 @@ public class Renderer {
 
     public void init()
     {
-        range = Range.create(pixels.length, 8);
+        range = Range.create(Application.width * Application.height, 32);
 
         mainScene = new Scene();
         try {
@@ -54,7 +51,7 @@ public class Renderer {
         renderKernel.update(cameraPos, rays, kIdxs, shearFactors, vertices, faces);
         renderKernel.execute(range);
 
-        return pixels;
+        return renderKernel.get();
     }
 
     private class RenderKernel extends Kernel
@@ -65,6 +62,7 @@ public class Renderer {
         @Local float[] shearFactors;
         @Local float[] vertices;
         @Local int[] faces;
+        @Local int[] pixels = new int[Application.width * Application.height];
 
         public synchronized void update(float[] cameraPos, float[] rays, int[] kIdxs, float[] shearFactors, float[] vertices, int[] faces) {
             this.cameraPos = cameraPos;
@@ -73,6 +71,11 @@ public class Renderer {
             this.shearFactors = shearFactors;
             this.vertices = vertices;
             this.faces = faces;
+        }
+
+        public int[] get()
+        {
+            return pixels;
         }
 
         /**
