@@ -1,13 +1,18 @@
 package cfbastian.renderer3d;
 
+import cfbastian.renderer3d.bodies.AxisAlignedBoundingBox;
+import cfbastian.renderer3d.bodies.BoundingVolumeHierarchy;
 import cfbastian.renderer3d.util.ObjFileManager;
 import com.aparapi.Kernel;
 import com.aparapi.Range;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class Renderer {
     private Scene mainScene;
+    private BoundingVolumeHierarchy bvh;
+    private BoundingVolumeHierarchy[] bvhLeaves;
     double elapsedTime;
 
     float[] rays, vertices;
@@ -25,15 +30,24 @@ public class Renderer {
 
         mainScene = new Scene();
         try {
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "StaffordBunny"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "StaffordBunny"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/UtahTeapot.obj", new float[]{6f, 0f, 0f}, 5f, 2, "Teapot"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Sphere"));
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+
+        bvh = new BoundingVolumeHierarchy(mainScene.getAllFaces(), mainScene.getAllVertices(), 1, 2, 6);
+        bvhLeaves = bvh.getLeaves();
+        System.out.println(Arrays.toString(bvh.getLeaves()));
+        for (BoundingVolumeHierarchy leaf : bvh.getLeaves())
+        {
+//            System.out.println(Arrays.toString(leaf.getFaces()));
+            System.out.println(leaf.getFaces().length);
         }
 
         vertices = mainScene.getAllVertices();
@@ -52,40 +66,6 @@ public class Renderer {
         renderKernel.execute(range);
 
         return renderKernel.get();
-    }
-
-    public boolean hitAABB(float[] cameraPos, float[] ray, float[] a, float[] b, float padding)
-    {
-        float[] a1 = new float[3];
-        float[] b1 = new float[3];
-        a1[0] = Math.min(a[0], b[0]) - padding;
-        a1[1] = Math.min(a[1], b[1]) - padding;
-        a1[2] = Math.min(a[2], b[2]) - padding;
-        b1[0] = Math.max(a[0], b[0]) + padding;
-        b1[1] = Math.max(a[1], b[1]) + padding;
-        b1[2] = Math.max(a[2], b[2]) + padding;
-
-        float tMin = Float.MIN_VALUE, tMax = Float.MAX_VALUE;
-
-        for (int i = 0; i < 3; i++) {
-            float invD = 1f/ray[i];
-            float t0 = (a1[i] - cameraPos[i]) * invD;
-            float t1 = (b1[i] - cameraPos[i]) * invD;
-
-            if(invD < 0f)
-            {
-                float v = t0;
-                t0 = t1;
-                t1 = v;
-            }
-
-            if(t0 > tMin) tMin = t0;
-            if(t1 < tMax) tMax = t1;
-
-            if(tMax < tMin) return false;
-        }
-
-        return true;
     }
 
     private class RenderKernel extends Kernel
@@ -173,7 +153,7 @@ public class Renderer {
                 t = T*rcpDet;
             }
 
-            if(t != 3.4028235E38f)
+            if(t != 3.4028235E38f) // Float.MAX_VALUE
             {
                 r = u;
                 g = v;
@@ -190,11 +170,19 @@ public class Renderer {
                 g = (1f - a) * 1 + a * 0.7f;
                 b = (1f - a) * 1 + a;
 
-                if(hitAABB(cameraPos, new float[]{rayX, rayY, rayZ}, new float[]{-1f, 1f, -1f}, new float[]{-2f, -1f, 0.5f}, 0.01f))
-                {
-                    r = 0;
-                    g = 0;
-                    b = 0;
+//                if(aabb.hitAABB(cameraPos, new float[]{rayX, rayY, rayZ}, 0.01f))
+//                {
+//                    r *= 0.9f;
+//                    g *= 0.9f;
+//                    b *= 0.9f;
+//                }
+            }
+
+            for (BoundingVolumeHierarchy leaf : bvhLeaves) {
+                if(leaf.getAabb().hitAABB(cameraPos, new float[]{rayX, rayY, rayZ}, 0.01f)) {
+                    r *= 0.9f;
+                    g *= 0.9f;
+                    b *= 0.9f;
                 }
             }
 
