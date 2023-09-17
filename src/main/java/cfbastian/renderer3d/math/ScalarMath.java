@@ -1,6 +1,6 @@
 package cfbastian.renderer3d.math;
 
-public class ScalarMath {
+public final class ScalarMath {
     public static float min(float... x)
     {
         float min = Float.MAX_VALUE;
