@@ -66,4 +66,14 @@ public class AxisAlignedBoundingBox {
     public float[] getB() {
         return b;
     }
+
+    public float getHalfSurfaceArea()
+    {
+        float w = b[1] - a[1], h = b[2] - a[2], d = b[0] - a[0];
+        return w * h + w * d + d * h;
+    }
+
+    public int[] getFaces() {
+        return faces;
+    }
 }

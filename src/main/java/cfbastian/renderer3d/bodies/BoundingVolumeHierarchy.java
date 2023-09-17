@@ -1,6 +1,7 @@
 package cfbastian.renderer3d.bodies;
 
 import cfbastian.renderer3d.math.ArrayOperations;
+import cfbastian.renderer3d.math.ScalarMath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +12,7 @@ public class BoundingVolumeHierarchy {
     private AxisAlignedBoundingBox aabb;
     private int[] faces;
 
-    public BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splits, int maxDepth)
+    public BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splitChecks, int maxDepth)
     {
         childNodes = new LinkedList<>();
         splitAxis = splitAxis > 2 ? 0 : splitAxis;
@@ -22,18 +23,32 @@ public class BoundingVolumeHierarchy {
         int numFaces = faces.length/3;
 
         if(0 < maxDepth) {
-            for (int i = 0; i < splits + 1; i++) {
-                int width = numFaces / (splits + 1);
-                int end = i == splits? faces.length : width*3*(i+1);
-                if(width*3*i != end) {
-                    childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, width * 3 * i, end), vertices, splitAxis + 1, splits, maxDepth, 1));
+            float a = aabb.getA()[splitAxis];
+            float b = aabb.getB()[splitAxis];
+
+            int splitIdx = 0;
+            float minCost = Float.MAX_VALUE;
+            for (int i = 0; i < splitChecks; i++)
+            {
+                int splitPoint;
+                for (splitPoint = 0; splitPoint < numFaces; splitPoint++) if(vertices[faces[splitPoint * 3]*3+splitAxis] > ScalarMath.lerp(a, b, (i + 1) * 1f / (float) (splitChecks + 1))) break;
+                AxisAlignedBoundingBox aabbA = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, 0, splitPoint * 3), vertices);
+                AxisAlignedBoundingBox aabbB = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, splitPoint * 3, faces.length), vertices);
+                float cost = getSAHCost(1f, 2f, aabbA, aabbB);
+                if(cost < minCost)
+                {
+                    splitIdx = splitPoint;
+                    minCost = cost;
                 }
             }
+
+            childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, 0, splitIdx * 3), vertices, splitAxis + 1, splitChecks, maxDepth, 1));
+            childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, splitIdx * 3, faces.length), vertices, splitAxis + 1, splitChecks, maxDepth, 1));
         }
         else if (0 == maxDepth) this.faces = faces;
     }
 
-    private BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splits, int maxDepth, int depth)
+    private BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splitChecks, int maxDepth, int depth)
     {
         childNodes = new LinkedList<>();
         splitAxis = splitAxis > 2 ? 0 : splitAxis;
@@ -44,15 +59,54 @@ public class BoundingVolumeHierarchy {
         int numFaces = faces.length/3;
 
         if(depth < maxDepth) {
-            for (int i = 0; i < splits + 1; i++) {
-                int width = numFaces / (splits + 1);
-                int end = i == splits? faces.length : width*3*(i+1);
-                if(width*3*i != end) {
-                    childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, width * 3 * i, end), vertices, splitAxis + 1, splits, maxDepth, depth + 1));
+            float a = aabb.getA()[splitAxis];
+            float b = aabb.getB()[splitAxis];
+
+            int splitIdx = 0;
+            float minCost = Float.MAX_VALUE;
+            for (int i = 0; i < splitChecks; i++)
+            {
+                int splitPoint;
+                for (splitPoint = 0; splitPoint < numFaces; splitPoint++) if(vertices[faces[splitPoint * 3]*3+splitAxis] > ScalarMath.lerp(a, b, (i + 1) * 1f / (float) (splitChecks + 1))) break;
+                AxisAlignedBoundingBox aabbA = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, 0, splitPoint * 3), vertices);
+                AxisAlignedBoundingBox aabbB = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, splitPoint * 3, faces.length), vertices);
+                float cost = getSAHCost(1f, 2f, aabbA, aabbB);
+                if(cost < minCost)
+                {
+                    splitIdx = splitPoint;
+                    minCost = cost;
                 }
             }
+
+            if(minCost != Float.MAX_VALUE && 0 != splitIdx * 3 && splitIdx * 3 != faces.length)
+            {
+                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, 0, splitIdx * 3), vertices, splitAxis + 1, splitChecks, maxDepth, depth + 1));
+                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, splitIdx * 3, faces.length), vertices, splitAxis + 1, splitChecks, maxDepth, depth + 1));
+            }
+
+//            int start = 0;
+//            int end = 0;
+//            float a = aabb.getA()[splitAxis];
+//            float b = aabb.getB()[splitAxis];
+
+//            for (int i = 0; i < splits + 1; i++) {
+//
+//                for (; end < numFaces; end++) if(vertices[faces[end]*3+splitAxis] > a + (i+1) * (b-a) / (splitAxis + 1)) break;
+//                System.out.println(a + i * (b-a) / (splitAxis + 1));
+//                if(start != end) {
+//                    System.out.println("new child");
+//                    childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, start, end), vertices, splitAxis + 1, splits, maxDepth, depth + 1));
+//                }
+//                start = end;
+//            }
         }
         else if (depth == maxDepth) this.faces = faces;
+    }
+
+    private float getSAHCost(float tTraversal, float tIntersection, AxisAlignedBoundingBox a, AxisAlignedBoundingBox b)
+    {
+        float sa = aabb.getHalfSurfaceArea();
+        return tTraversal + a.getHalfSurfaceArea()/sa * a.getFaces().length * tIntersection + b.getHalfSurfaceArea()/sa * b.getFaces().length * tIntersection;
     }
 
     public AxisAlignedBoundingBox getAabb() {

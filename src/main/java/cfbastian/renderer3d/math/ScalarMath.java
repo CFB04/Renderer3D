@@ -56,4 +56,9 @@ public final class ScalarMath {
     {
         return (float) Math.sin(x);
     }
+
+    public static float lerp(float a, float b, float w)
+    {
+        return a * (1 - w) + b * w;
+    }
 }
