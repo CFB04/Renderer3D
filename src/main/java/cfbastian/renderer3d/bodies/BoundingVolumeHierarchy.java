@@ -160,7 +160,6 @@ public class BoundingVolumeHierarchy {
         return faces;
     }
 
-    ArrayList<Integer> childIds = new ArrayList<>();
     int id;
 
     public void mapTree() {
@@ -168,7 +167,7 @@ public class BoundingVolumeHierarchy {
         ArrayList<Integer> ids = new ArrayList<>();
 
         int[] idInc = new int[1];
-        this.id = idInc[0]++;
+        this.id = idInc[0];
 
         partialMap(bbList, idInc);
 
@@ -181,9 +180,9 @@ public class BoundingVolumeHierarchy {
         for (int i = 0; i < map.length; i++) map[i] = ids.get(i);
     }
 
-    private void mapTree(ArrayList<Float> retList, int[] idInc, int childId)
+    private void mapTree(ArrayList<Float> retList, int[] idInc)
     {
-        this.id = childId;
+        this.id = idInc[0];
         partialMap(retList, idInc);
     }
 
@@ -198,15 +197,15 @@ public class BoundingVolumeHierarchy {
         bbList.add(b[2]);
 
         for (BoundingVolumeHierarchy child : childNodes) {
-            childIds.add(idInc[0]++);
-            child.mapTree(bbList, idInc, idInc[0]++);
+            idInc[0]++;
+            child.mapTree(bbList, idInc);
         }
     }
 
     private void mapNodeIDs(ArrayList<Integer> ids)
     {
         ids.add(id*-1);
-        ids.addAll(childIds);
+        for (BoundingVolumeHierarchy child : childNodes) ids.add(child.id);
         for (BoundingVolumeHierarchy child : childNodes) child.mapNodeIDs(ids);
     }
 

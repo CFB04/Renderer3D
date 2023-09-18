@@ -31,12 +31,12 @@ public class Renderer {
 
         mainScene = new Scene();
         try {
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "StaffordBunny"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 3.5f, 2, "StaffordBunny"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/UtahTeapot.obj", new float[]{6f, 0f, 0f}, 5f, 2, "Teapot"));
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Sphere"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Sphere"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -114,7 +114,7 @@ public class Renderer {
 
         public boolean hitAABB(float[] cameraPos, float[] ray)
         {
-            float tMin = Float.MIN_VALUE, tMax = Float.MAX_VALUE;
+            float tMin = 0x0.000002P-126f, tMax = 3.4028235E38f;
 
             for (int i = 0; i < 3; i++) {
                 float invD = 1f/ray[i];
@@ -149,9 +149,6 @@ public class Renderer {
             ray[0] = rays[i*3];
             ray[1] = rays[i*3+1];
             ray[2] = rays[i*3+2];
-//            float rayX = rays[i*3];
-//            float rayY = rays[i*3+1];
-//            float rayZ = rays[i*3+2];
 
             float r, g, b;
             float t = 3.4028235E38f, u = 0f, v = 0f, w = 0f; // 3.4028235E38f is Float.MAX_VALUE
@@ -219,13 +216,6 @@ public class Renderer {
                 r = (1f - a) * 1 + a * 0.5f;
                 g = (1f - a) * 1 + a * 0.7f;
                 b = (1f - a) * 1 + a;
-
-//                if(aabb.hitAABB(cameraPos, new float[]{rayX, rayY, rayZ}, 0.01f))
-//                {
-//                    r *= 0.9f;
-//                    g *= 0.9f;
-//                    b *= 0.9f;
-//                }
             }
             if(hitAABB(cameraPos, ray))
             {
