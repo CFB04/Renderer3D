@@ -14,6 +14,9 @@ public class BoundingVolumeHierarchy {
 
     private float[] boundingBoxes;
     private int[] map;
+    private int[] leafWidths;
+    private int[] leafFaces;
+    private int id;
 
     private float padding;
 
@@ -160,8 +163,6 @@ public class BoundingVolumeHierarchy {
         return faces;
     }
 
-    int id;
-
     public void mapTree() {
         ArrayList<Float> bbList = new ArrayList<>();
         ArrayList<Integer> ids = new ArrayList<>();
@@ -215,5 +216,29 @@ public class BoundingVolumeHierarchy {
 
     public int[] getMap() {
         return map;
+    }
+
+    public void generateLeafFaceArrays()
+    {
+        ArrayList<Integer> faces = new ArrayList<>();
+        ArrayList<Integer> leafWidthsList = new ArrayList<>();
+        for (BoundingVolumeHierarchy leaf : getLeaves())
+        {
+            for (Integer i: leaf.getFaces()) faces.add(i);
+            leafWidthsList.add(leaf.getFaces().length);
+        }
+
+        leafFaces = new int[faces.size()];
+        for (int i = 0; i < leafFaces.length; i++) leafFaces[i] = faces.get(i);
+        leafWidths = new int[leafWidthsList.size()];
+        for (int i = 0; i < leafWidths.length; i++) leafWidths[i] = leafWidthsList.get(i);
+    }
+
+    public int[] getLeafWidths() {
+        return leafWidths;
+    }
+
+    public int[] getLeafFaces() {
+        return leafFaces;
     }
 }
