@@ -3,13 +3,20 @@ package cfbastian.renderer3d.bodies;
 public class AxisAlignedBoundingBox {
     private float[] a, b;
     private int[] faces;
+    private float padding;
 
-    public AxisAlignedBoundingBox(float[] a, float[] b) {
-        this.a = a;
-        this.b = b;
+    public AxisAlignedBoundingBox(float[] a, float[] b, float padding) {
+        this.a = new float[3];
+        this.b = new float[3];
+        this.a[0] = Math.min(a[0], b[0]) - padding;
+        this.a[1] = Math.min(a[1], b[1]) - padding;
+        this.a[2] = Math.min(a[2], b[2]) - padding;
+        this.b[0] = Math.max(a[0], b[0]) + padding;
+        this.b[1] = Math.max(a[1], b[1]) + padding;
+        this.b[2] = Math.max(a[2], b[2]) + padding;
     }
 
-    public AxisAlignedBoundingBox(int[] faces, float[] vertices) {
+    public AxisAlignedBoundingBox(int[] faces, float[] vertices, float padding) {
         this.faces = faces;
 
         a = new float[]{Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE};
@@ -23,25 +30,22 @@ public class AxisAlignedBoundingBox {
             b[1] = Math.max(b[1], vertices[face * 3 + 1]);
             b[2] = Math.max(b[2], vertices[face * 3 + 2]);
         }
+        a[0] -= padding;
+        a[1] -= padding;
+        a[2] -= padding;
+        b[0] += padding;
+        b[1] += padding;
+        b[2] += padding;
     }
 
-    public boolean hitAABB(float[] cameraPos, float[] ray, float padding)
+    public boolean hitAABB(float[] cameraPos, float[] ray)
     {
-        float[] a1 = new float[3];
-        float[] b1 = new float[3];
-        a1[0] = Math.min(a[0], b[0]) - padding;
-        a1[1] = Math.min(a[1], b[1]) - padding;
-        a1[2] = Math.min(a[2], b[2]) - padding;
-        b1[0] = Math.max(a[0], b[0]) + padding;
-        b1[1] = Math.max(a[1], b[1]) + padding;
-        b1[2] = Math.max(a[2], b[2]) + padding;
-
         float tMin = Float.MIN_VALUE, tMax = Float.MAX_VALUE;
 
         for (int i = 0; i < 3; i++) {
             float invD = 1f/ray[i];
-            float t0 = (a1[i] - cameraPos[i]) * invD;
-            float t1 = (b1[i] - cameraPos[i]) * invD;
+            float t0 = (a[i] - cameraPos[i]) * invD;
+            float t1 = (b[i] - cameraPos[i]) * invD;
 
             if(invD < 0f)
             {
@@ -65,6 +69,18 @@ public class AxisAlignedBoundingBox {
 
     public float[] getB() {
         return b;
+    }
+
+    public float[] getAB()
+    {
+        float[] ret = new float[6];
+        ret[0] = a[0];
+        ret[1] = a[1];
+        ret[2] = a[2];
+        ret[3] = b[0];
+        ret[4] = b[1];
+        ret[5] = b[2];
+        return ret;
     }
 
     public float getHalfSurfaceArea()

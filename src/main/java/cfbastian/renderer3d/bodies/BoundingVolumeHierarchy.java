@@ -15,14 +15,18 @@ public class BoundingVolumeHierarchy {
     private float[] boundingBoxes;
     private int[] map;
 
-    public BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splitChecks, int maxDepth)
+    private float padding;
+
+    public BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splitChecks, int maxDepth, float padding)
     {
         childNodes = new LinkedList<>();
         splitAxis = splitAxis > 2 ? 0 : splitAxis;
 
         faces = ArrayOperations.sortTris(faces, vertices, splitAxis);
         this.faces = faces;
-        aabb = new AxisAlignedBoundingBox(faces, vertices);
+        aabb = new AxisAlignedBoundingBox(faces, vertices, padding);
+
+        this.padding = padding;
 
         int numFaces = faces.length/3;
 
@@ -36,8 +40,8 @@ public class BoundingVolumeHierarchy {
             {
                 int splitPoint;
                 for (splitPoint = 0; splitPoint < numFaces; splitPoint++) if(vertices[faces[splitPoint * 3]*3+splitAxis] > ScalarMath.lerp(a, b, (i + 1) * 1f / (float) (splitChecks + 1))) break;
-                AxisAlignedBoundingBox aabbA = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, 0, splitPoint * 3), vertices);
-                AxisAlignedBoundingBox aabbB = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, splitPoint * 3, faces.length), vertices);
+                AxisAlignedBoundingBox aabbA = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, 0, splitPoint * 3), vertices, padding);
+                AxisAlignedBoundingBox aabbB = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, splitPoint * 3, faces.length), vertices, padding);
                 float cost = getSAHCost(1f, 2f, aabbA, aabbB);
                 if(cost < minCost)
                 {
@@ -48,20 +52,22 @@ public class BoundingVolumeHierarchy {
 
             if(minCost != Float.MAX_VALUE && 0 != splitIdx * 3 && splitIdx * 3 != faces.length)
             {
-                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, 0, splitIdx * 3), vertices, splitAxis + 1, splitChecks, maxDepth, 1));
-                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, splitIdx * 3, faces.length), vertices, splitAxis + 1, splitChecks, maxDepth, 1));
+                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, 0, splitIdx * 3), vertices, splitAxis + 1, splitChecks, maxDepth, 1, padding));
+                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, splitIdx * 3, faces.length), vertices, splitAxis + 1, splitChecks, maxDepth, 1, padding));
             }
         }
     }
 
-    private BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splitChecks, int maxDepth, int depth)
+    private BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splitChecks, int maxDepth, int depth, float padding)
     {
         childNodes = new LinkedList<>();
         splitAxis = splitAxis > 2 ? 0 : splitAxis;
 
         faces = ArrayOperations.sortTris(faces, vertices, splitAxis);
         this.faces = faces;
-        aabb = new AxisAlignedBoundingBox(faces, vertices);
+        aabb = new AxisAlignedBoundingBox(faces, vertices, padding);
+
+        this.padding = padding;
 
         int numFaces = faces.length/3;
 
@@ -75,8 +81,8 @@ public class BoundingVolumeHierarchy {
             {
                 int splitPoint;
                 for (splitPoint = 0; splitPoint < numFaces; splitPoint++) if(vertices[faces[splitPoint * 3]*3+splitAxis] > ScalarMath.lerp(a, b, (i + 1) * 1f / (float) (splitChecks + 1))) break;
-                AxisAlignedBoundingBox aabbA = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, 0, splitPoint * 3), vertices);
-                AxisAlignedBoundingBox aabbB = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, splitPoint * 3, faces.length), vertices);
+                AxisAlignedBoundingBox aabbA = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, 0, splitPoint * 3), vertices, padding);
+                AxisAlignedBoundingBox aabbB = new AxisAlignedBoundingBox(Arrays.copyOfRange(faces, splitPoint * 3, faces.length), vertices, padding);
                 float cost = getSAHCost(1f, 2f, aabbA, aabbB);
                 if(cost < minCost)
                 {
@@ -87,8 +93,8 @@ public class BoundingVolumeHierarchy {
 
             if(minCost != Float.MAX_VALUE && 0 != splitIdx * 3 && splitIdx * 3 != faces.length)
             {
-                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, 0, splitIdx * 3), vertices, splitAxis + 1, splitChecks, maxDepth, depth + 1));
-                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, splitIdx * 3, faces.length), vertices, splitAxis + 1, splitChecks, maxDepth, depth + 1));
+                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, 0, splitIdx * 3), vertices, splitAxis + 1, splitChecks, maxDepth, depth + 1, padding));
+                childNodes.add(new BoundingVolumeHierarchy(Arrays.copyOfRange(faces, splitIdx * 3, faces.length), vertices, splitAxis + 1, splitChecks, maxDepth, depth + 1, padding));
             }
         }
     }
@@ -108,7 +114,7 @@ public class BoundingVolumeHierarchy {
         ArrayList<BoundingVolumeHierarchy> leaves = new ArrayList<>();
         int[] depth = new int[1];
 
-        if(aabb.hitAABB(cameraPos, ray, padding))
+        if(aabb.hitAABB(cameraPos, ray))
         {
             if(childNodes.isEmpty()) leaves.add(this);
             else for (BoundingVolumeHierarchy child : childNodes) child.hitLeaf(cameraPos, ray, padding, leaves, depth);
@@ -122,7 +128,7 @@ public class BoundingVolumeHierarchy {
     private void hitLeaf(float[] cameraPos, float[] ray, float padding, ArrayList<BoundingVolumeHierarchy> leaves, int[] depth)
     {
         depth[0]++;
-        if(aabb.hitAABB(cameraPos, ray, padding))
+        if(aabb.hitAABB(cameraPos, ray))
         {
             if(childNodes.isEmpty()) leaves.add(this);
             else for (BoundingVolumeHierarchy child : childNodes) child.hitLeaf(cameraPos, ray, padding);
