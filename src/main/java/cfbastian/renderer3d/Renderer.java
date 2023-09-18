@@ -1,6 +1,5 @@
 package cfbastian.renderer3d;
 
-import cfbastian.renderer3d.bodies.AxisAlignedBoundingBox;
 import cfbastian.renderer3d.bodies.BoundingVolumeHierarchy;
 import cfbastian.renderer3d.util.ObjFileManager;
 import com.aparapi.Kernel;
@@ -30,24 +29,26 @@ public class Renderer {
 
         mainScene = new Scene();
         try {
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "StaffordBunny"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 5f, 2, "StaffordBunny"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/UtahTeapot.obj", new float[]{6f, 0f, 0f}, 5f, 2, "Teapot"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Sphere"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        bvh = new BoundingVolumeHierarchy(mainScene.getAllFaces(), mainScene.getAllVertices(), 1, 15, 9);
+        bvh = new BoundingVolumeHierarchy(mainScene.getAllFaces(), mainScene.getAllVertices(), 1, 99, 9);
         bvhLeaves = bvh.getLeaves();
-        System.out.println(Arrays.toString(bvh.getLeaves()));
+//        System.out.println(Arrays.toString(bvh.getLeaves()));
+//        System.out.println(Arrays.toString(bvh.getFaces()));
+//        System.out.println(bvh.getFaces().length);
         for (BoundingVolumeHierarchy leaf : bvh.getLeaves())
         {
             System.out.println(Arrays.toString(leaf.getFaces()));
-//            System.out.println(leaf.getFaces().length);
+            System.out.println(leaf.getFaces().length);
         }
 
         vertices = mainScene.getAllVertices();
