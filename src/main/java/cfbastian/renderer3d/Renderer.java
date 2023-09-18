@@ -40,7 +40,7 @@ public class Renderer {
             throw new RuntimeException(e);
         }
 
-        bvh = new BoundingVolumeHierarchy(mainScene.getAllFaces(), mainScene.getAllVertices(), 1, 99, 9);
+        bvh = new BoundingVolumeHierarchy(mainScene.getAllFaces(), mainScene.getAllVertices(), 1, 99, 3);
         bvhLeaves = bvh.getLeaves();
 //        System.out.println(Arrays.toString(bvh.getLeaves()));
 //        System.out.println(Arrays.toString(bvh.getFaces()));
@@ -50,6 +50,12 @@ public class Renderer {
             System.out.println(Arrays.toString(leaf.getFaces()));
             System.out.println(leaf.getFaces().length);
         }
+
+        bvh.mapTree();
+
+        System.out.println("BVH");
+        System.out.println(Arrays.toString(bvh.getMap()));
+        System.out.println(Arrays.toString(bvh.getBoundingBoxes()));
 
         vertices = mainScene.getAllVertices();
         faces = mainScene.getAllFaces();

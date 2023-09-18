@@ -12,6 +12,9 @@ public class BoundingVolumeHierarchy {
     private AxisAlignedBoundingBox aabb;
     private int[] faces;
 
+    private float[] boundingBoxes;
+    private int[] map;
+
     public BoundingVolumeHierarchy(int[] faces, float[] vertices, int splitAxis, int splitChecks, int maxDepth)
     {
         childNodes = new LinkedList<>();
@@ -149,5 +152,63 @@ public class BoundingVolumeHierarchy {
 
     public int[] getFaces() {
         return faces;
+    }
+
+    ArrayList<Integer> childIds = new ArrayList<>();
+    int id;
+
+    public void mapTree() {
+        ArrayList<Float> bbList = new ArrayList<>();
+        ArrayList<Integer> ids = new ArrayList<>();
+
+        int[] idInc = new int[1];
+        this.id = idInc[0]++;
+
+        partialMap(bbList, idInc);
+
+        mapNodeIDs(ids);
+
+        boundingBoxes = new float[bbList.size()];
+        for (int i = 0; i < boundingBoxes.length; i++) boundingBoxes[i] = bbList.get(i);
+
+        map = new int[ids.size()];
+        for (int i = 0; i < map.length; i++) map[i] = ids.get(i);
+    }
+
+    private void mapTree(ArrayList<Float> retList, int[] idInc, int childId)
+    {
+        this.id = childId;
+        partialMap(retList, idInc);
+    }
+
+    private void partialMap(ArrayList<Float> bbList, int[] idInc) {
+        float[] a = aabb.getA();
+        float[] b = aabb.getA();
+        bbList.add(a[0]);
+        bbList.add(a[1]);
+        bbList.add(a[2]);
+        bbList.add(b[0]);
+        bbList.add(b[1]);
+        bbList.add(b[2]);
+
+        for (BoundingVolumeHierarchy child : childNodes) {
+            childIds.add(idInc[0]++);
+            child.mapTree(bbList, idInc, idInc[0]++);
+        }
+    }
+
+    private void mapNodeIDs(ArrayList<Integer> ids)
+    {
+        ids.add(id*-1);
+        ids.addAll(childIds);
+        for (BoundingVolumeHierarchy child : childNodes) child.mapNodeIDs(ids);
+    }
+
+    public float[] getBoundingBoxes() {
+        return boundingBoxes;
+    }
+
+    public int[] getMap() {
+        return map;
     }
 }
