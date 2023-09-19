@@ -34,15 +34,15 @@ public class Renderer {
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/StanfordBunny.obj", new float[]{6f, 0f, -2f}, 3.5f, 2, "StaffordBunny"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/UtahTeapot.obj", new float[]{6f, 0f, 0f}, 5f, 2, "Teapot"));
 //            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Sphere.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Sphere"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
-//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
-            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 0f, 0f}, 0.5f, 2, "Cube"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, 1.5f, 0f}, 0.5f, 2, "Cube1"));
+            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Cube.obj", new float[]{4f, -1.5f, 0f}, 0.5f, 2, "Cube2"));
+//            mainScene.addMesh(ObjFileManager.generateMeshFromFile("src/main/resources/cfbastian/renderer3d/meshes/Quad.obj", new float[]{5f, 0f, 0f}, 1f, 2, "Quad"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        bvh = new BoundingVolumeHierarchy(mainScene.getAllFaces(), mainScene.getAllVertices(), 1, 99, 3, 0.01f);
+        bvh = new BoundingVolumeHierarchy(mainScene.getAllFaces(), mainScene.getAllVertices(), 1, 99, 0, 0.01f);
         bvhLeaves = bvh.getLeaves();
 //        System.out.println(Arrays.toString(bvh.getLeaves()));
 //        System.out.println(Arrays.toString(bvh.getFaces()));
@@ -54,10 +54,16 @@ public class Renderer {
         }
 
         bvh.mapTree();
+        bvh.generateLeafFaceArrays();
+
+        renderKernel.updateBVH(bvh.getMap(), bvh.getBoundingBoxes(), bvh.getLeafFaces(), bvh.getLeafWidths());
 
         System.out.println("BVH");
-        System.out.println(Arrays.toString(bvh.getMap()));
-        System.out.println(Arrays.toString(bvh.getBoundingBoxes()));
+        System.out.println("BVH Map: Length: " + bvh.getMap().length + " Array : " + Arrays.toString(bvh.getMap()));
+        System.out.println("BVH AABBS: Length: " + bvh.getBoundingBoxes().length + " Array : " + Arrays.toString(bvh.getBoundingBoxes()));
+        System.out.println("BVH Leaf Faces: Length: " + bvh.getLeafFaces().length + " Array : " + Arrays.toString(bvh.getLeafFaces()));
+        System.out.println("BVH Leaf Widths Length: " + bvh.getLeafWidths().length + " Array : " + Arrays.toString(bvh.getLeafWidths()));
+        System.out.println("END BVH");
 
         vertices = mainScene.getAllVertices();
         faces = mainScene.getAllFaces();
@@ -107,12 +113,29 @@ public class Renderer {
             this.ray = new float[3];
         }
 
+        @Local private int[] bvhMap;
+        @Local private float[] bvhAABBS;
+        @Local private int[] bvhLeafFaces;
+        @Local private int[] bvhLeafWidths;
+
+        @Local private int[] checkIdxs;
+
+        public synchronized void updateBVH(int[] bvhMap, float[] bvhAABBS, int[] bvhLeafFaces, int[] bvhLeafWidths) {
+            this.bvhMap = bvhMap;
+            this.bvhAABBS = bvhAABBS;
+            this.bvhLeafFaces = bvhLeafFaces;
+            this.bvhLeafWidths = bvhLeafWidths;
+
+            this.checkIdxs = new int[bvhMap.length];
+        }
+
+
         public int[] get()
         {
             return pixels;
         }
 
-        public boolean hitAABB(float[] cameraPos, float[] ray)
+        public boolean hitAABB(float[] cameraPos, float[] ray, float[] aabb, int start, int end)
         {
             float tMin = 0x0.000002P-126f, tMax = 3.4028235E38f;
 
@@ -153,51 +176,110 @@ public class Renderer {
             float r, g, b;
             float t = 3.4028235E38f, u = 0f, v = 0f, w = 0f; // 3.4028235E38f is Float.MAX_VALUE
 
+            int start = 0, end = bvhLeafWidths[0], leafWidthIdx = 0;
+            boolean hit = false;
 
-            if(hitAABB(cameraPos, ray)) {
-                int kx = kIdxs[i * 3], ky = kIdxs[i * 3 + 1], kz = kIdxs[i * 3 + 2];
-                float Sx = shearFactors[i * 3], Sy = shearFactors[i * 3 + 1], Sz = shearFactors[i * 3 + 2];
+            for (int j = 0; j < bvhMap.length; j++) {
+                if(bvhMap[j] >= 0)
+                {
+                    boolean check = false;
+                    for (int k = 0; k < j; k++) {
+                        if (bvhMap[j] == checkIdxs[k]) {
+                            check = true;
+                            break;
+                        }
+                    }
 
-                for (int j = 0; j < faces.length / 3; j++) {
-                    float Akx = vertices[faces[j * 3] * 3 + kx] - cameraPos[kx];
-                    float Aky = vertices[faces[j * 3] * 3 + ky] - cameraPos[ky];
-                    float Akz = vertices[faces[j * 3] * 3 + kz] - cameraPos[kz];
-                    float Bkx = vertices[faces[j * 3 + 1] * 3 + kx] - cameraPos[kx];
-                    float Bky = vertices[faces[j * 3 + 1] * 3 + ky] - cameraPos[ky];
-                    float Bkz = vertices[faces[j * 3 + 1] * 3 + kz] - cameraPos[kz];
-                    float Ckx = vertices[faces[j * 3 + 2] * 3 + kx] - cameraPos[kx];
-                    float Cky = vertices[faces[j * 3 + 2] * 3 + ky] - cameraPos[ky];
-                    float Ckz = vertices[faces[j * 3 + 2] * 3 + kz] - cameraPos[kz];
+                    if(check) {
+                        float tMin = 0x0.000002P-126f, tMax = 3.4028235E38f;
 
-                    float Ax = Akx - Sx * Akz;
-                    float Ay = Aky - Sy * Akz;
-                    float Bx = Bkx - Sx * Bkz;
-                    float By = Bky - Sy * Bkz;
-                    float Cx = Ckx - Sx * Ckz;
-                    float Cy = Cky - Sy * Ckz;
+                        hit = true;
+                        for (int k = 0; k < 3; k++) {
+                            float invD = 1f / ray[k];
+                            float t0 = (aabb[k] - cameraPos[k]) * invD;
+                            float t1 = (aabb[k + 3] - cameraPos[k]) * invD;
 
-                    float U = Cx * By - Cy * Bx;
-                    float V = Ax * Cy - Ay * Cx;
-                    float W = Bx * Ay - By * Ax;
+                            if (invD < 0f) {
+                                float swap = t0;
+                                t0 = t1;
+                                t1 = swap;
+                            }
 
-                    if (U < 0 || V < 0 || W < 0) continue;
+                            if (t0 > tMin) tMin = t0;
+                            if (t1 < tMax) tMax = t1;
 
-                    float det = U + V + W;
-                    if (det == 0D) continue;
+                            if (tMax < tMin) hit = false;
+                        }
 
-                    float Az = Sz * Akz;
-                    float Bz = Sz * Bkz;
-                    float Cz = Sz * Ckz;
-                    float T = U * Az + V * Bz + W * Cz;
+                        if(j == bvhMap.length - 1)
+                        {
+                            start += bvhLeafWidths[leafWidthIdx];
+                            if(leafWidthIdx != bvhLeafWidths.length - 1) end += bvhLeafWidths[leafWidthIdx + 1];
+                            else end = bvhLeafFaces.length;
+                            if(hit) break;
+                            leafWidthIdx++;
+                        }
+                        else if(bvhMap[j+1] < 0)
+                        {
+                            start += bvhLeafWidths[leafWidthIdx];
+                            if(leafWidthIdx != bvhLeafWidths.length - 1) end += bvhLeafWidths[leafWidthIdx + 1];
+                            else end = bvhLeafFaces.length;
+                            if(hit) break;
+                            leafWidthIdx++;
+                        }
 
-                    if (T <= 0 || T >= t * det) continue;
-
-                    float rcpDet = 1f / det;
-                    u = U * rcpDet;
-                    v = V * rcpDet;
-                    w = W * rcpDet;
-                    t = T * rcpDet;
+                    }
                 }
+                else if(hit)
+                {
+                    checkIdxs[j] = -bvhMap[j]; // Add children
+                }
+            }
+
+            int kx = kIdxs[i * 3], ky = kIdxs[i * 3 + 1], kz = kIdxs[i * 3 + 2];
+            float Sx = shearFactors[i * 3], Sy = shearFactors[i * 3 + 1], Sz = shearFactors[i * 3 + 2];
+
+//            System.out.println(end - start);
+
+            for (int j = start; j < end / 3; j++) {
+                float Akx = vertices[faces[j * 3] * 3 + kx] - cameraPos[kx];
+                float Aky = vertices[faces[j * 3] * 3 + ky] - cameraPos[ky];
+                float Akz = vertices[faces[j * 3] * 3 + kz] - cameraPos[kz];
+                float Bkx = vertices[faces[j * 3 + 1] * 3 + kx] - cameraPos[kx];
+                float Bky = vertices[faces[j * 3 + 1] * 3 + ky] - cameraPos[ky];
+                float Bkz = vertices[faces[j * 3 + 1] * 3 + kz] - cameraPos[kz];
+                float Ckx = vertices[faces[j * 3 + 2] * 3 + kx] - cameraPos[kx];
+                float Cky = vertices[faces[j * 3 + 2] * 3 + ky] - cameraPos[ky];
+                float Ckz = vertices[faces[j * 3 + 2] * 3 + kz] - cameraPos[kz];
+
+                float Ax = Akx - Sx * Akz;
+                float Ay = Aky - Sy * Akz;
+                float Bx = Bkx - Sx * Bkz;
+                float By = Bky - Sy * Bkz;
+                float Cx = Ckx - Sx * Ckz;
+                float Cy = Cky - Sy * Ckz;
+
+                float U = Cx * By - Cy * Bx;
+                float V = Ax * Cy - Ay * Cx;
+                float W = Bx * Ay - By * Ax;
+
+                if (U < 0 || V < 0 || W < 0) continue;
+
+                float det = U + V + W;
+                if (det == 0D) continue;
+
+                float Az = Sz * Akz;
+                float Bz = Sz * Bkz;
+                float Cz = Sz * Ckz;
+                float T = U * Az + V * Bz + W * Cz;
+
+                if (T <= 0 || T >= t * det) continue;
+
+                float rcpDet = 1f / det;
+                u = U * rcpDet;
+                v = V * rcpDet;
+                w = W * rcpDet;
+                t = T * rcpDet;
             }
 
             if(t != 3.4028235E38f) // Float.MAX_VALUE
@@ -217,12 +299,12 @@ public class Renderer {
                 g = (1f - a) * 1 + a * 0.7f;
                 b = (1f - a) * 1 + a;
             }
-            if(hitAABB(cameraPos, ray))
-            {
-                r *= 0.9f;
-                b *= 0.9f;
-                g *= 0.9f;
-            }
+//            if(hitAABB(cameraPos, ray, aabb, 0, 6))
+//            {
+//                r *= 0.9f;
+//                b *= 0.9f;
+//                g *= 0.9f;
+//            }
 
 //            for (BoundingVolumeHierarchy leaf : bvhLeaves) {
 //                if(leaf.getAabb().hitAABB(cameraPos, ray)) {

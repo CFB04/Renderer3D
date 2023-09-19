@@ -205,8 +205,8 @@ public class BoundingVolumeHierarchy {
 
     private void mapNodeIDs(ArrayList<Integer> ids)
     {
-        ids.add(id*-1);
-        for (BoundingVolumeHierarchy child : childNodes) ids.add(child.id);
+        ids.add(id);
+        for (BoundingVolumeHierarchy child : childNodes) ids.add(child.id*-1);
         for (BoundingVolumeHierarchy child : childNodes) child.mapNodeIDs(ids);
     }
 
